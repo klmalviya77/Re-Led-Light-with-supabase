@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Re Led Light{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">Contact Us</h1>
+            <p class="lead text-muted">Get in touch with our LED lighting experts</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Contact Information -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-info-circle text-primary me-2"></i>Contact Information
+                    </h3>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-map-marker-alt text-primary me-2"></i>Address</h5>
+                        <p class="text-muted">
+                            Re Led Light Solutions<br>
+                            123 Industrial Area<br>
+                            Delhi, India 110001
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-phone text-primary me-2"></i>Phone</h5>
+                        <p class="text-muted">
+                            <a href="tel:+911234567890" class="text-decoration-none">+91 12345 67890</a><br>
+                            <small>Monday - Saturday: 9:00 AM - 6:00 PM</small>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-envelope text-primary me-2"></i>Email</h5>
+                        <p class="text-muted">
+                            <a href="mailto:info@reledlight.com" class="text-decoration-none">info@reledlight.com</a><br>
+                            <a href="mailto:sales@reledlight.com" class="text-decoration-none">sales@reledlight.com</a>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fab fa-whatsapp text-success me-2"></i>WhatsApp</h5>
+                        <p class="text-muted">
+                            <a href="https://wa.me/911234567890" class="text-decoration-none text-success" target="_blank">
+                                +91 12345 67890
+                            </a><br>
+                            <small>Quick support and inquiries</small>
+                        </p>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div>
+                        <h5>Follow Us</h5>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-info btn-sm">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-danger btn-sm">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Form -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">
+                        <i class="fas fa-paper-plane text-primary me-2"></i>Send Message
+                    </h3>
+                    
+                    <form id="contactForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="phone">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <select class="form-select" id="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="quote">Request Quote</option>
+                                <option value="support">Technical Support</option>
+                                <option value="partnership">Business Partnership</option>
+                                <option value="complaint">Complaint</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Message *</label>
+                            <textarea class="form-control" id="message" rows="5" required 
+                                      placeholder="Tell us about your LED lighting requirements or any questions you have..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Services -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Our Services</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-lightbulb fa-3x text-primary mb-3"></i>
+                            <h5>LED Lighting Solutions</h5>
+                            <p class="text-muted">Complete range of energy-efficient LED lighting products</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                            <h5>Installation Support</h5>
+                            <p class="text-muted">Professional installation and technical support services</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
+                            <h5>Custom Solutions</h5>
+                            <p class="text-muted">Tailored lighting solutions for specific requirements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value
+    };
+    
+    // Simple validation
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.subject || !formData.message) {
+        showErrorMessage('Please fill in all required fields');
+        return;
+    }
+    
+    // Show success message (in a real app, this would send to backend)
+    showSuccessMessage('Thank you for your message! We will get back to you soon.');
+    this.reset();
+});
+
+function showSuccessMessage(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-container position-fixed top-0 end-0 p-3';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+function showErrorMessage(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-container position-fixed top-0 end-0 p-3';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Re Led Light{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">My Orders</h1>
+            <p class="lead text-muted">Track your LED lighting orders</p>
+        </div>
+    </div>
+
+    <!-- Order Tracking Form -->
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-search text-primary me-2"></i>Track Your Order
+                    </h5>
+                    <form id="orderTrackingForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="customerPhone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="customerPhone" 
+                                   placeholder="Enter your phone number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="orderIdSearch" class="form-label">Order ID (Optional)</label>
+                            <input type="text" class="form-control" id="orderIdSearch" 
+                                   placeholder="Enter order ID">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Track Orders
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearSearch()">
+                                <i class="fas fa-times me-2"></i>Clear
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Display -->
+    <div id="ordersContainer">
+        <div class="text-center py-5" id="noOrdersMessage">
+            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+            <h3>No Orders Found</h3>
+            <p class="text-muted">Enter your phone number above to track your orders</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+            </a>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    <div id="ordersList" style="display: none;">
+        <div class="row" id="ordersData">
+            <!-- Orders will be loaded here -->
+        </div>
+    </div>
+
+    <!-- WhatsApp Support -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>
+                        <i class="fab fa-whatsapp me-2"></i>Need Help with Your Order?
+                    </h4>
+                    <p class="mb-3">Contact our support team for immediate assistance with your LED lighting orders.</p>
+                    <a href="https://wa.me/911234567890" class="btn btn-light" target="_blank">
+                        <i class="fab fa-whatsapp me-2"></i>Chat on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('orderTrackingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const phone = document.getElementById('customerPhone').value.trim();
+    const orderId = document.getElementById('orderIdSearch').value.trim();
+    
+    if (!phone) {
+        showErrorMessage('Please enter your phone number');
+        return;
+    }
+    
+    // Show loading
+    const ordersContainer = document.getElementById('ordersContainer');
+    ordersContainer.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Searching for your orders...</p>
+        </div>
+    `;
+    
+    // Fetch orders
+    const params = new URLSearchParams({ phone });
+    if (orderId) params.append('order_id', orderId);
+    
+    fetch(`/api/user_orders?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            displayOrders(data.orders || []);
+        })
+        .catch(error => {
+            console.error('Error fetching orders:', error);
+            showErrorMessage('Failed to fetch orders. Please try again.');
+            showNoOrders();
+        });
+});
+
+function displayOrders(orders) {
+    const ordersContainer = document.getElementById('ordersContainer');
+    const ordersList = document.getElementById('ordersList');
+    const ordersData = document.getElementById('ordersData');
+    
+    if (orders.length === 0) {
+        showNoOrders();
+        return;
+    }
+    
+    ordersContainer.style.display = 'none';
+    ordersList.style.display = 'block';
+    
+    ordersData.innerHTML = orders.map(order => `
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Order #${order.id}</h6>
+                    <span class="badge ${getStatusBadgeClass(order.status)}">${order.status.toUpperCase()}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Customer:</small>
+                            <div class="fw-bold">${order.customer_name}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Total:</small>
+                            <div class="fw-bold text-primary">₹${order.total_amount.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Order Date:</small>
+                        <div>${new Date(order.created_at).toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Items:</small>
+                        <div class="small">
+                            ${order.items.map(item => 
+                                `${item.quantity}x ${item.product_name} (₹${item.price.toFixed(2)} each)`
+                            ).join('<br>')}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">Delivery Address:</small>
+                        <div class="small">${order.customer_address}</div>
+                    </div>
+                    
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar ${getProgressBarClass(order.status)}" 
+                             style="width: ${getProgressWidth(order.status)}%"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>Pending</span>
+                        <span>Processing</span>
+                        <span>Shipped</span>
+                        <span>Delivered</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-primary btn-sm" onclick="viewOrderDetails(${order.id})">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </button>
+                    <a href="https://wa.me/911234567890?text=Hi, I want to inquire about order #${order.id}" 
+                       class="btn btn-outline-success btn-sm" target="_blank">
+                        <i class="fab fa-whatsapp me-1"></i>Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function showNoOrders() {
+    const ordersContainer = document.getElementById('ordersContainer');
+    const ordersList = document.getElementById('ordersList');
+    
+    ordersList.style.display = 'none';
+    ordersContainer.style.display = 'block';
+    ordersContainer.innerHTML = `
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h3>No Orders Found</h3>
+            <p class="text-muted">No orders found with the provided information. Please check your phone number and try again.</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+            </a>
+        </div>
+    `;
+}
+
+function getStatusBadgeClass(status) {
+    switch (status.toLowerCase()) {
+        case 'pending': return 'bg-warning';
+        case 'processing': return 'bg-info';
+        case 'shipped': return 'bg-primary';
+        case 'delivered': return 'bg-success';
+        case 'cancelled': return 'bg-danger';
+        default: return 'bg-secondary';
+    }
+}
+
+function getProgressBarClass(status) {
+    switch (status.toLowerCase()) {
+        case 'pending': return 'bg-warning';
+        case 'processing': return 'bg-info';
+        case 'shipped': return 'bg-primary';
+        case 'delivered': return 'bg-success';
+        case 'cancelled': return 'bg-danger';
+        default: return 'bg-secondary';
+    }
+}
+
+function getProgressWidth(status) {
+    switch (status.toLowerCase()) {
+        case 'pending': return 25;
+        case 'processing': return 50;
+        case 'shipped': return 75;
+        case 'delivered': return 100;
+        case 'cancelled': return 0;
+        default: return 0;
+    }
+}
+
+function viewOrderDetails(orderId) {
+    fetch(`/orders/${orderId}`)
+        .then(response => response.json())
+        .then(order => {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Order #${order.id} Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <h6>Customer Information</h6>
+                                    <p><strong>Name:</strong> ${order.customer_name}</p>
+                                    <p><strong>Phone:</strong> ${order.customer_phone}</p>
+                                    <p><strong>Address:</strong> ${order.customer_address}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Order Information</h6>
+                                    <p><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(order.status)}">${order.status.toUpperCase()}</span></p>
+                                    <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString('en-IN')}</p>
+                                    <p><strong>Total:</strong> ₹${order.total_amount.toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <h6>Order Items</h6>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${order.items.map(item => `
+                                            <tr>
+                                                <td>${item.product_name}</td>
+                                                <td>${item.quantity}</td>
+                                                <td>₹${item.price.toFixed(2)}</td>
+                                                <td>₹${(item.quantity * item.price).toFixed(2)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="https://wa.me/911234567890?text=Hi, I want to inquire about order #${order.id}" 
+                               class="btn btn-success" target="_blank">
+                                <i class="fab fa-whatsapp me-2"></i>Contact Support
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+            
+            modal.addEventListener('hidden.bs.modal', () => {
+                modal.remove();
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            showErrorMessage('Failed to load order details');
+        });
+}
+
+function clearSearch() {
+    document.getElementById('orderTrackingForm').reset();
+    document.getElementById('ordersList').style.display = 'none';
+    document.getElementById('ordersContainer').style.display = 'block';
+    document.getElementById('ordersContainer').innerHTML = `
+        <div class="text-center py-5" id="noOrdersMessage">
+            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+            <h3>No Orders Found</h3>
+            <p class="text-muted">Enter your phone number above to track your orders</p>
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+            </a>
+        </div>
+    `;
+}
+
+function showSuccessMessage(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-container position-fixed top-0 end-0 p-3';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+
+function showErrorMessage(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-container position-fixed top-0 end-0 p-3';
+    toast.innerHTML = `
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+</script>
+{% endblock %}

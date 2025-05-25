@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Re Led Light{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Checkout</h1>
+    
+    <div class="row">
+        <!-- Checkout Form -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Billing Information</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkout-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Street Address *</label>
+                            <textarea class="form-control" id="address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">City *</label>
+                                <input type="text" class="form-control" id="city" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="state" class="form-label">State *</label>
+                                <input type="text" class="form-control" id="state" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="zipCode" class="form-label">ZIP Code *</label>
+                                <input type="text" class="form-control" id="zipCode" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Order Notes (Optional)</label>
+                            <textarea class="form-control" id="notes" rows="3" placeholder="Special delivery instructions or comments..."></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div id="order-items">
+                        <!-- Items will be loaded by JavaScript -->
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span id="order-subtotal">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax:</span>
+                        <span>$0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong id="order-total">$0.00</strong>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="place-order-btn">
+                        <i class="fas fa-check me-2"></i>Place Order
+                    </button>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            By placing your order, you agree to our terms and conditions.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Info -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="text-warning mb-2">
+                        <i class="fas fa-info-circle me-2"></i>Payment Information
+                    </h6>
+                    <p class="small text-muted mb-0">
+                        Payment will be collected upon delivery or via bank transfer. 
+                        Our team will contact you to arrange payment details.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Empty Cart Message -->
+    <div id="empty-cart-checkout" class="text-center py-5" style="display: none;">
+        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+        <h3>Your cart is empty</h3>
+        <p class="text-muted">Add some products to your cart before checkout!</p>
+        <a href="{{ url_for('shop') }}" class="btn btn-primary">
+            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+        </a>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle text-success me-2"></i>Order Placed Successfully!
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p>Thank you for your order! We have received your order details and will contact you shortly to confirm.</p>
+                <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+                <p>Our team will reach out to you within 24 hours to arrange payment and delivery.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Return to Home</a>
+                <a href="{{ url_for('shop') }}" class="btn btn-outline-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrderSummary();
+    
+    document.getElementById('place-order-btn').addEventListener('click', function() {
+        submitOrder();
+    });
+});
+
+function loadOrderSummary() {
+    const cart = getCart();
+    const orderItemsContainer = document.getElementById('order-items');
+    const emptyCartMessage = document.getElementById('empty-cart-checkout');
+    
+    if (cart.length === 0) {
+        emptyCartMessage.style.display = 'block';
+        document.querySelector('.row').style.display = 'none';
+        return;
+    }
+    
+    // Group cart items by product ID
+    const groupedCart = {};
+    cart.forEach(item => {
+        if (groupedCart[item.id]) {
+            groupedCart[item.id].quantity++;
+        } else {
+            groupedCart[item.id] = { ...item, quantity: 1 };
+        }
+    });
+    
+    let orderHTML = '';
+    let total = 0;
+    
+    Object.values(groupedCart).forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+        
+        orderHTML += `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <small class="fw-bold">${item.name}</small>
+                    <br>
+                    <small class="text-muted">$${item.price.toFixed(2)} x ${item.quantity}</small>
+                </div>
+                <span>$${itemTotal.toFixed(2)}</span>
+            </div>
+        `;
+    });
+    
+    orderItemsContainer.innerHTML = orderHTML;
+    document.getElementById('order-subtotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
+}
+
+function submitOrder() {
+    const form = document.getElementById('checkout-form');
+    const submitBtn = document.getElementById('place-order-btn');
+    
+    // Validate form
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    
+    // Prepare order data
+    const cart = getCart();
+    const groupedCart = {};
+    cart.forEach(item => {
+        if (groupedCart[item.id]) {
+            groupedCart[item.id].quantity++;
+        } else {
+            groupedCart[item.id] = { ...item, quantity: 1 };
+        }
+    });
+    
+    const orderData = {
+        name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+        phone: document.getElementById('phone').value,
+        address: `${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}`,
+        email: document.getElementById('email').value,
+        notes: document.getElementById('notes').value,
+        items: Object.values(groupedCart),
+        total: parseFloat(document.getElementById('order-total').textContent.replace('$', ''))
+    };
+    
+    // Submit order
+    fetch('/api/submit-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Clear cart
+            localStorage.removeItem('cart');
+            updateCartCount();
+            
+            // Show success modal
+            document.getElementById('order-id').textContent = `#${data.order_id}`;
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        } else {
+            throw new Error(data.error || 'Failed to place order');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to place order: ' + error.message);
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Place Order';
+    });
+}
+</script>
+{% endblock %}

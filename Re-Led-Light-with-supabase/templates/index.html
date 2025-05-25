@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold mb-4">Illuminate Your World with Premium LED Lighting</h1>
+                <p class="lead mb-4">Discover our extensive collection of energy-efficient LED lights, smart lighting solutions, and modern fixtures for every space.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('shop') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-shopping-bag me-2"></i>Shop Now
+                    </a>
+                    <a href="https://wa.me/1234567890" class="btn btn-outline-light btn-lg" target="_blank">
+                        <i class="fab fa-whatsapp me-2"></i>Contact Us
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <img src="https://pixabay.com/get/g519a7f540df7fecca5d5d2003e3a56ea370648c1fd2d5d4829ddf049fdbc8a85d2e4cf8a4b91cbdf384ea42d0683f0685960d8fcc8a488ca019322756458a55c_1280.jpg" 
+                     alt="LED Lighting" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Browse by Category</h2>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            {% if loop.index == 1 %}
+                                <i class="fas fa-home fa-3x text-primary"></i>
+                            {% elif loop.index == 2 %}
+                                <i class="fas fa-sun fa-3x text-warning"></i>
+                            {% elif loop.index == 3 %}
+                                <i class="fas fa-wifi fa-3x text-info"></i>
+                            {% elif loop.index == 4 %}
+                                <i class="fas fa-building fa-3x text-success"></i>
+                            {% else %}
+                                <i class="fas fa-star fa-3x text-danger"></i>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text text-muted">{{ category.description }}</p>
+                        <a href="{{ url_for('shop', category=category.id) }}" class="btn btn-outline-primary">
+                            View Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Products</h2>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-card">
+                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted flex-grow-1">{{ product.description[:100] }}...</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="h5 text-primary">₹{{ "%.2f"|format(product.price) }}</span>
+                                {% if product.stock > 0 %}
+                                    <small class="text-success d-block">In Stock ({{ product.stock }})</small>
+                                {% else %}
+                                    <small class="text-danger d-block">Out of Stock</small>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{{ url_for('shop') }}" class="btn btn-warning btn-lg">
+                <i class="fas fa-th-large me-2"></i>View All Products
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose Re Led Light?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-leaf fa-3x text-success"></i>
+                    </div>
+                    <h5>Energy Efficient</h5>
+                    <p class="text-muted">Save up to 80% on energy costs with our premium LED lighting solutions.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h5>Long Lasting</h5>
+                    <p class="text-muted">Our LED products last 25x longer than traditional incandescent bulbs.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-tools fa-3x text-warning"></i>
+                    </div>
+                    <h5>Easy Installation</h5>
+                    <p class="text-muted">Simple installation process with detailed instructions and support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Initialize cart count on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
+</script>
+{% endblock %}
