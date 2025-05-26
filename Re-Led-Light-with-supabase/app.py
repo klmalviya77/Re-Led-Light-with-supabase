@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -32,6 +33,11 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 
 # Initialize the app with the extension
 db.init_app(app)
+
+# Make datetime available in templates
+@app.context_processor
+def inject_datetime():
+    return {'datetime': datetime}
 
 with app.app_context():
     # Import models and routes
