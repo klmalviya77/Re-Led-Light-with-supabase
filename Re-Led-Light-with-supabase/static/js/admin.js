@@ -171,7 +171,7 @@ function viewOrderDetails(orderId) {
                     <div class="col-md-6">
                         <h6><i class="fas fa-user text-primary me-2"></i>Customer Information</h6>
                         <div class="bg-light p-3 rounded mb-3">
-                            <p class="mb-1"><strong>Name:</strong> ${order.customer_name}</p>
+                            <p class="mb-1"><strong>Name:</strong> ${order.customer_name || 'N/A'}</p>
                             <p class="mb-1"><strong>Phone:</strong> ${order.customer_phone || 'N/A'}</p>
                             <p class="mb-0"><strong>Address:</strong> ${order.customer_address}</p>
                         </div>

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container py-5">
     <h1 class="mb-4">Checkout</h1>
-    
+
     <div class="row">
         <!-- Checkout Form -->
         <div class="col-md-8">
@@ -25,22 +25,22 @@
                                 <input type="text" class="form-control" id="lastName" required>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone Number *</label>
                             <input type="tel" class="form-control" id="phone" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email">
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="address" class="form-label">Street Address *</label>
                             <textarea class="form-control" id="address" rows="3" required></textarea>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="city" class="form-label">City *</label>
@@ -55,7 +55,7 @@
                                 <input type="text" class="form-control" id="zipCode" required>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="notes" class="form-label">Order Notes (Optional)</label>
                             <textarea class="form-control" id="notes" rows="3" placeholder="Special delivery instructions or comments..."></textarea>
@@ -64,7 +64,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Order Summary -->
         <div class="col-md-4">
             <div class="card">
@@ -75,9 +75,9 @@
                     <div id="order-items">
                         <!-- Items will be loaded by JavaScript -->
                     </div>
-                    
+
                     <hr>
-                    
+
                     <div class="d-flex justify-content-between mb-2">
                         <span>Subtotal:</span>
                         <span id="order-subtotal">$0.00</span>
@@ -95,11 +95,11 @@
                         <strong>Total:</strong>
                         <strong id="order-total">$0.00</strong>
                     </div>
-                    
+
                     <button type="button" class="btn btn-primary w-100 mb-3" id="place-order-btn">
                         <i class="fas fa-check me-2"></i>Place Order
                     </button>
-                    
+
                     <div class="text-center">
                         <small class="text-muted">
                             By placing your order, you agree to our terms and conditions.
@@ -107,7 +107,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Payment Info -->
             <div class="card mt-3">
                 <div class="card-body">
@@ -122,7 +122,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Empty Cart Message -->
     <div id="empty-cart-checkout" class="text-center py-5" style="display: none;">
         <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
@@ -161,7 +161,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     loadOrderSummary();
-    
+
     document.getElementById('place-order-btn').addEventListener('click', function() {
         submitOrder();
     });
@@ -171,13 +171,13 @@ function loadOrderSummary() {
     const cart = getCart();
     const orderItemsContainer = document.getElementById('order-items');
     const emptyCartMessage = document.getElementById('empty-cart-checkout');
-    
+
     if (cart.length === 0) {
         emptyCartMessage.style.display = 'block';
         document.querySelector('.row').style.display = 'none';
         return;
     }
-    
+
     // Group cart items by product ID
     const groupedCart = {};
     cart.forEach(item => {
@@ -187,14 +187,14 @@ function loadOrderSummary() {
             groupedCart[item.id] = { ...item, quantity: 1 };
         }
     });
-    
+
     let orderHTML = '';
     let total = 0;
-    
+
     Object.values(groupedCart).forEach(item => {
         const itemTotal = item.price * item.quantity;
         total += itemTotal;
-        
+
         orderHTML += `
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
@@ -206,7 +206,7 @@ function loadOrderSummary() {
             </div>
         `;
     });
-    
+
     orderItemsContainer.innerHTML = orderHTML;
     document.getElementById('order-subtotal').textContent = `$${total.toFixed(2)}`;
     document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
@@ -215,17 +215,17 @@ function loadOrderSummary() {
 function submitOrder() {
     const form = document.getElementById('checkout-form');
     const submitBtn = document.getElementById('place-order-btn');
-    
+
     // Validate form
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
-    
+
     // Disable submit button
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-    
+
     // Prepare order data
     const cart = getCart();
     const groupedCart = {};
@@ -236,7 +236,7 @@ function submitOrder() {
             groupedCart[item.id] = { ...item, quantity: 1 };
         }
     });
-    
+
     const orderData = {
         name: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
         phone: document.getElementById('phone').value,
@@ -246,7 +246,7 @@ function submitOrder() {
         items: Object.values(groupedCart),
         total: parseFloat(document.getElementById('order-total').textContent.replace('$', ''))
     };
-    
+
     // Submit order
     fetch('/api/submit-order', {
         method: 'POST',
@@ -261,7 +261,7 @@ function submitOrder() {
             // Clear cart
             localStorage.removeItem('cart');
             updateCartCount();
-            
+
             // Show success modal
             document.getElementById('order-id').textContent = `#${data.order_id}`;
             const successModal = new bootstrap.Modal(document.getElementById('successModal'));

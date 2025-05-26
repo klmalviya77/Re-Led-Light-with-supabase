@@ -186,7 +186,7 @@
                                 <tr>
                                     <td>#{{ order.id }}</td>
                                     <td>{{ order.customer_name }}</td>
-                                    <td>{{ order.customer_phone }}</td>
+                                    <td>{{ order.customer_phone or 'N/A' }}</td>
                                     <td>${{ "%.2f"|format(order.total_amount) }}</td>
                                     <td>
                                         <select class="form-select form-select-sm" onchange="updateOrderStatus({{ order.id }}, this.value)">

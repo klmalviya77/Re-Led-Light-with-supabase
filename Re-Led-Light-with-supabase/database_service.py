@@ -123,8 +123,15 @@ class DatabaseService:
 
     # Order operations
     def create_order(self, order_data: Dict) -> Dict:
-        """Create a new order with items"""
+        """Create new order with items"""
         try:
+            # Create the order
+            order_insert_data = {
+                'customer_name': order_data['customer_name'],
+                'customer_phone': order_data.get('customer_phone', ''),
+                'customer_address': order_data['customer_address'],
+                'total_amount': order_data['total_amount']
+            }
             # Start a Supabase transaction
             order_data['created_at'] = datetime.utcnow().isoformat()
             order_data['status'] = 'pending'
@@ -164,7 +171,7 @@ class DatabaseService:
         try:
             response = self.client.table('orders').select('*, order_items(*, products(name))').order('created_at', desc=True).execute()
             orders = response.data if response.data else []
-            
+
             # Convert string dates to datetime objects for template compatibility
             for order in orders:
                 if order.get('created_at') and isinstance(order['created_at'], str):
@@ -172,7 +179,7 @@ class DatabaseService:
                         order['created_at'] = datetime.fromisoformat(order['created_at'].replace('Z', '+00:00'))
                     except:
                         pass
-            
+
             return orders
         except Exception as e:
             logging.error(f"Error fetching orders: {e}")
@@ -395,7 +402,7 @@ class DatabaseService:
         try:
             response = self.client.table('messages').select('*').order('created_at', desc=True).execute()
             messages = response.data if response.data else []
-            
+
             # Convert string dates to datetime objects for template compatibility
             for message in messages:
                 if message.get('created_at') and isinstance(message['created_at'], str):
@@ -408,7 +415,7 @@ class DatabaseService:
                         message['admin_reply_at'] = datetime.fromisoformat(message['admin_reply_at'].replace('Z', '+00:00'))
                     except:
                         pass
-            
+
             return messages
         except Exception as e:
             logging.error(f"Error fetching messages: {e}")

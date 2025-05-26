@@ -164,7 +164,7 @@ def submit_order():
         # Format order data for Supabase
         order_data = {
             'customer_name': data['name'],
-            'customer_phone': data['phone'],
+            'customer_phone': data.get('phone', ''),
             'customer_address': data['address'],
             'total_amount': data['total'],
             'items': [{
