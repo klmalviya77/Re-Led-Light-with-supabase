@@ -28,14 +28,14 @@ function editProduct(productId) {
     // Find product data from the table
     const row = document.querySelector(`button[onclick="editProduct(${productId})"]`).closest('tr');
     const cells = row.querySelectorAll('td');
-    
+
     // Populate form
     document.getElementById('productId').value = productId;
     document.getElementById('productName').value = cells[1].textContent.trim();
     document.getElementById('productPrice').value = parseFloat(cells[3].textContent.replace('$', ''));
     document.getElementById('productStock').value = parseInt(cells[4].textContent.trim());
     document.getElementById('productImage').value = cells[0].querySelector('img').src;
-    
+
     // Set category (need to find by name)
     const categoryName = cells[2].textContent.trim();
     const categorySelect = document.getElementById('productCategory');
@@ -45,14 +45,14 @@ function editProduct(productId) {
             break;
         }
     }
-    
+
     // Set featured status
     const featuredBadge = cells[5].querySelector('.badge');
     document.getElementById('productFeatured').checked = featuredBadge.textContent.includes('Featured');
-    
+
     // Change modal title
     document.getElementById('productModalTitle').textContent = 'Edit Product';
-    
+
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('productModal'));
     modal.show();
@@ -61,7 +61,7 @@ function editProduct(productId) {
 function saveProduct() {
     const productId = document.getElementById('productId').value;
     const isEdit = productId !== '';
-    
+
     const productData = {
         name: document.getElementById('productName').value,
         description: document.getElementById('productDescription').value,
@@ -72,10 +72,10 @@ function saveProduct() {
         featured: document.getElementById('productFeatured').checked,
         specifications: {} // Can be extended to include specifications
     };
-    
+
     const url = isEdit ? `/api/admin/product/${productId}` : '/api/admin/product';
     const method = isEdit ? 'PUT' : 'POST';
-    
+
     fetch(url, {
         method: method,
         headers: {
@@ -87,16 +87,16 @@ function saveProduct() {
     .then(data => {
         if (data.success) {
             showSuccessMessage(isEdit ? 'Product updated successfully!' : 'Product added successfully!');
-            
+
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
             modal.hide();
-            
+
             // Reset form
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
             document.getElementById('productModalTitle').textContent = 'Add Product';
-            
+
             // Reload page to show changes
             setTimeout(() => {
                 window.location.reload();
@@ -115,7 +115,7 @@ function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
         return;
     }
-    
+
     fetch(`/api/admin/product/${productId}`, {
         method: 'DELETE'
     })
@@ -123,7 +123,7 @@ function deleteProduct(productId) {
     .then(data => {
         if (data.success) {
             showSuccessMessage('Product deleted successfully!');
-            
+
             // Remove row from table
             const button = document.querySelector(`button[onclick="deleteProduct(${productId})"]`);
             const row = button.closest('tr');
@@ -172,7 +172,7 @@ function viewOrderDetails(orderId) {
             <p class="text-muted">This will show detailed order information including items, customer details, and shipping information.</p>
         </div>
     `;
-    
+
     document.getElementById('orderDetails').innerHTML = orderDetailsHtml;
     const modal = new bootstrap.Modal(document.getElementById('orderModal'));
     modal.show();
@@ -186,15 +186,15 @@ function showSuccessMessage(message) {
     alert.style.right = '20px';
     alert.style.zIndex = '9999';
     alert.style.minWidth = '300px';
-    
+
     alert.innerHTML = `
         <i class="fas fa-check-circle me-2"></i>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(alert);
-    
+
     // Auto dismiss after 3 seconds
     setTimeout(() => {
         if (alert.parentNode) {
@@ -211,15 +211,15 @@ function showErrorMessage(message) {
     alert.style.right = '20px';
     alert.style.zIndex = '9999';
     alert.style.minWidth = '300px';
-    
+
     alert.innerHTML = `
         <i class="fas fa-exclamation-circle me-2"></i>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(alert);
-    
+
     // Auto dismiss after 5 seconds
     setTimeout(() => {
         if (alert.parentNode) {
@@ -243,15 +243,15 @@ function validateProductForm() {
     const price = parseFloat(document.getElementById('productPrice').value);
     const stock = parseInt(document.getElementById('productStock').value);
     const imageUrl = document.getElementById('productImage').value.trim();
-    
+
     const errors = [];
-    
+
     if (!name) errors.push('Product name is required');
     if (!description) errors.push('Product description is required');
     if (!price || price <= 0) errors.push('Valid price is required');
     if (!stock || stock < 0) errors.push('Valid stock quantity is required');
     if (!imageUrl) errors.push('Image URL is required');
-    
+
     return {
         isValid: errors.length === 0,
         errors: errors
@@ -261,12 +261,12 @@ function validateProductForm() {
 // Enhanced save product with validation
 function saveProductWithValidation() {
     const validation = validateProductForm();
-    
+
     if (!validation.isValid) {
         showErrorMessage('Please fix the following errors:\n' + validation.errors.join('\n'));
         return;
     }
-    
+
     saveProduct();
 }
 
@@ -285,7 +285,7 @@ function autoSaveDraft() {
             category_id: document.getElementById('productCategory').value,
             featured: document.getElementById('productFeatured').checked
         };
-        
+
         localStorage.setItem('productDraft', JSON.stringify(formData));
     }, 1000);
 }
@@ -312,7 +312,7 @@ function loadCatalogues() {
         .then(catalogues => {
             const tbody = document.getElementById('catalogues-table-body');
             tbody.innerHTML = '';
-            
+
             catalogues.forEach(catalogue => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -352,12 +352,12 @@ function saveCatalogue() {
         category: document.getElementById('catalogueCategory').value,
         featured: document.getElementById('catalogueFeatured').checked
     };
-    
+
     if (!formData.title || !formData.pdf_url) {
         showErrorMessage('Please fill in all required fields');
         return;
     }
-    
+
     fetch('/api/admin/catalogue', {
         method: 'POST',
         headers: {
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'productCategory',
         'productFeatured'
     ];
-    
+
     formInputs.forEach(inputId => {
         const element = document.getElementById(inputId);
         if (element) {
@@ -432,24 +432,24 @@ document.addEventListener('DOMContentLoaded', function() {
 // Search and filter functionality
 function filterProducts(searchTerm) {
     const rows = document.querySelectorAll('#products tbody tr');
-    
+
     rows.forEach(row => {
         const productName = row.cells[1].textContent.toLowerCase();
         const category = row.cells[2].textContent.toLowerCase();
         const isMatch = productName.includes(searchTerm.toLowerCase()) || 
                        category.includes(searchTerm.toLowerCase());
-        
+
         row.style.display = isMatch ? '' : 'none';
     });
 }
 
 function filterOrders(status) {
     const rows = document.querySelectorAll('#orders tbody tr');
-    
+
     rows.forEach(row => {
         const orderStatus = row.cells[4].querySelector('select').value;
         const isMatch = status === 'all' || orderStatus === status;
-        
+
         row.style.display = isMatch ? '' : 'none';
     });
 }
@@ -472,7 +472,7 @@ function bulkDeleteProducts(productIds) {
     if (!confirm(`Are you sure you want to delete ${productIds.length} products? This action cannot be undone.`)) {
         return;
     }
-    
+
     // Implementation for bulk delete
     console.log('Bulk delete products:', productIds);
     showSuccessMessage('Bulk delete feature coming soon!');
@@ -482,4 +482,194 @@ function bulkUpdateOrderStatus(orderIds, newStatus) {
     // Implementation for bulk status update
     console.log('Bulk update orders:', orderIds, newStatus);
     showSuccessMessage('Bulk update feature coming soon!');
+}
+
+editCatalogueModal.show();
+}
+
+// Message Management Functions
+let currentMessageId = null;
+
+function refreshMessages() {
+    fetch('/api/admin/messages')
+        .then(response => response.json())
+        .then(data => {
+            if (data.messages) {
+                updateMessagesTable(data.messages);
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing messages:', error);
+            showAlert('Error refreshing messages', 'danger');
+        });
+}
+
+function updateMessagesTable(messages) {
+    const tbody = document.querySelector('#messagesTable tbody');
+    tbody.innerHTML = '';
+
+    messages.forEach(message => {
+        const row = document.createElement('tr');
+        const statusClass = getMessageStatusClass(message.status);
+        const date = new Date(message.created_at).toLocaleDateString();
+
+        row.innerHTML = `
+            <td>${message.id}</td>
+            <td>
+                <div>${message.sender_name}</div>
+                <small class="text-muted">${message.sender_email}</small>
+            </td>
+            <td>${message.subject}</td>
+            <td>${date}</td>
+            <td>
+                <span class="badge ${statusClass}">
+                    ${message.status.charAt(0).toUpperCase() + message.status.slice(1)}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-primary" onclick="viewMessage(${message.id})">
+                    <i class="bi bi-eye"></i> View
+                </button>
+                ${message.status !== 'replied' ? `
+                <button class="btn btn-sm btn-success" onclick="replyToMessage(${message.id})">
+                    <i class="bi bi-reply"></i> Reply
+                </button>
+                ` : ''}
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+function getMessageStatusClass(status) {
+    switch(status) {
+        case 'unread': return 'bg-warning';
+        case 'read': return 'bg-info';
+        case 'replied': return 'bg-success';
+        default: return 'bg-secondary';
+    }
+}
+
+function viewMessage(messageId) {
+    currentMessageId = messageId;
+
+    fetch(`/api/admin/message/${messageId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                displayMessageDetails(data.message);
+                const messageViewModal = new bootstrap.Modal(document.getElementById('messageViewModal'));
+                messageViewModal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching message:', error);
+            showAlert('Error loading message', 'danger');
+        });
+}
+
+function displayMessageDetails(message) {
+    const content = document.getElementById('messageViewContent');
+    const date = new Date(message.created_at).toLocaleString();
+    const statusClass = getMessageStatusClass(message.status);
+
+    let replySection = '';
+    if (message.admin_reply) {
+        const replyDate = new Date(message.admin_reply_at).toLocaleString();
+        replySection = `
+            <div class="bg-light p-3 rounded mt-3">
+                <h6>Admin Reply</h6>
+                <p>${message.admin_reply}</p>
+                <small class="text-muted">Replied on ${replyDate} by ${message.replied_by}</small>
+            </div>
+        `;
+    }
+
+    content.innerHTML = `
+        <div class="mb-3">
+            <h6>From: ${message.sender_name}</h6>
+            <p class="text-muted mb-1">Email: ${message.sender_email}</p>
+            ${message.sender_phone ? `<p class="text-muted mb-1">Phone: ${message.sender_phone}</p>` : ''}
+            <p class="text-muted mb-1">Date: ${date}</p>
+            <span class="badge ${statusClass}">${message.status.charAt(0).toUpperCase() + message.status.slice(1)}</span>
+        </div>
+
+        <div class="mb-3">
+            <h6>Subject: ${message.subject}</h6>
+        </div>
+
+        <div class="mb-3">
+            <h6>Message:</h6>
+            <p class="border p-3 rounded">${message.message}</p>
+        </div>
+
+        ${replySection}
+    `;
+
+    // Update reply button visibility
+    const replyBtn = document.getElementById('replyFromViewBtn');
+    if (message.status === 'replied') {
+        replyBtn.style.display = 'none';
+    } else {
+        replyBtn.style.display = 'block';
+    }
+}
+
+function replyToMessage(messageId) {
+    currentMessageId = messageId;
+    document.getElementById('replyMessageId').value = messageId;
+    document.getElementById('replyText').value = '';
+
+    const messageReplyModal = new bootstrap.Modal(document.getElementById('messageReplyModal'));
+    messageReplyModal.show();
+}
+
+function showReplyForm() {
+    // Close view modal and open reply modal
+    const messageViewModal = bootstrap.Modal.getInstance(document.getElementById('messageViewModal'));
+    messageViewModal.hide();
+
+    setTimeout(() => {
+        replyToMessage(currentMessageId);
+    }, 300);
+}
+
+function sendReply() {
+    const messageId = document.getElementById('replyMessageId').value;
+    const replyText = document.getElementById('replyText').value.trim();
+
+    if (!replyText) {
+        showAlert('Please enter a reply message', 'warning');
+        return;
+    }
+
+    fetch(`/api/admin/message/${messageId}/reply`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            reply: replyText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('Reply sent successfully', 'success');
+
+            // Close modal
+            const messageReplyModal = bootstrap.Modal.getInstance(document.getElementById('messageReplyModal'));
+            messageReplyModal.hide();
+
+            // Refresh messages
+            refreshMessages();
+        } else {
+            showAlert('Error: ' + (data.error || 'Failed to send reply'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending reply:', error);
+        showAlert('Error sending reply', 'danger');
+    });
 }

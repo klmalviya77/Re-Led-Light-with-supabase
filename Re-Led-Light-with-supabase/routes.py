@@ -19,14 +19,14 @@ def index():
         categories = db_service.get_all_categories()
         featured_products = db_service.get_featured_products(6)
         featured_catalogues = db_service.get_featured_catalogues(3)
-        
+
         # Initialize sample data if empty (first time setup)
         if not categories:
             db_service.initialize_sample_data()
             categories = db_service.get_all_categories()
             featured_products = db_service.get_featured_products(6)
             featured_catalogues = db_service.get_featured_catalogues(3)
-        
+
         return render_template('index.html', 
                              categories=categories, 
                              featured_products=featured_products, 
@@ -44,7 +44,7 @@ def shop():
     """Shop page with all products, filtering, and search"""
     category_id = request.args.get('category', type=int)
     search_query = request.args.get('search', '')
-    
+
     try:
         # Use Supabase for product filtering
         if search_query:
@@ -53,7 +53,7 @@ def shop():
             products = db_service.get_products_by_category(category_id)
         else:
             products = db_service.get_all_products()
-        
+
         categories = db_service.get_all_categories()
         selected_category = None
         if category_id:
@@ -61,25 +61,25 @@ def shop():
                 if cat['id'] == category_id:
                     selected_category = cat
                     break
-        
+
         return render_template('shop.html', products=products, categories=categories, 
                              selected_category=selected_category, search_query=search_query)
     except Exception as e:
         logging.error(f"Error in shop page: {e}")
         # Fallback to local database
         query = Product.query
-        
+
         if category_id:
             query = query.filter_by(category_id=category_id)
-        
+
         if search_query:
             query = query.filter(Product.name.ilike(f'%{search_query}%') | 
                                Product.description.ilike(f'%{search_query}%'))
-        
+
         products = query.all()
         categories = Category.query.all()
         selected_category = Category.query.get(category_id) if category_id else None
-        
+
         return render_template('shop.html', products=products, categories=categories, 
                              selected_category=selected_category, search_query=search_query)
 
@@ -91,11 +91,11 @@ def product_detail(product_id):
         product = db_service.get_product_by_id(product_id)
         if not product:
             abort(404)
-        
+
         related_products = db_service.get_products_by_category(product['category_id'])
         # Filter out current product and limit to 4
         related_products = [p for p in related_products if p['id'] != product_id][:4]
-        
+
         return render_template('product.html', product=product, related_products=related_products)
     except Exception as e:
         logging.error(f"Error loading product {product_id}: {e}")
@@ -105,7 +105,7 @@ def product_detail(product_id):
             Product.category_id == product.category_id,
             Product.id != product_id
         ).limit(4).all()
-        
+
         return render_template('product.html', product=product, related_products=related_products)
 
 @app.route('/cart')
@@ -139,10 +139,10 @@ def view_pdf(catalogue_id):
             if cat['id'] == catalogue_id:
                 catalogue = cat
                 break
-        
+
         if not catalogue:
             abort(404)
-        
+
         return render_template('pdf_viewer.html', catalogue=catalogue)
     except Exception as e:
         logging.error(f"Error loading catalogue {catalogue_id}: {e}")
@@ -160,7 +160,7 @@ def submit_order():
     """Submit order via AJAX"""
     try:
         data = request.json
-        
+
         # Format order data for Supabase
         order_data = {
             'customer_name': data['name'],
@@ -173,12 +173,12 @@ def submit_order():
                 'price': item['price']
             } for item in data['items']]
         }
-        
+
         # Create order using Supabase
         order = db_service.create_order(order_data)
-        
+
         return jsonify({'success': True, 'order_id': order['id']})
-    
+
     except Exception as e:
         logging.error(f"Error submitting order: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -198,13 +198,13 @@ def user_orders():
     """Get user orders by phone number using Supabase"""
     phone = request.args.get('phone')
     order_id = request.args.get('order_id')
-    
+
     if not phone:
         return jsonify({'orders': []})
-    
+
     try:
         orders = db_service.get_orders_by_phone(phone, order_id)
-        
+
         return jsonify({
             'orders': [{
                 'id': order['id'],
@@ -230,7 +230,7 @@ def get_admin_catalogues():
     """Get all catalogues for admin"""
     if 'admin_logged_in' not in session:
         return jsonify({'error': 'Not authorized'}), 401
-    
+
     try:
         # Use Supabase first
         catalogues = db_service.get_all_catalogues()
@@ -260,7 +260,7 @@ def admin_auth():
     """Enhanced admin authentication with Supabase"""
     username = request.form.get('username', 'admin')
     password = request.form.get('password')
-    
+
     try:
         # First try Supabase authentication
         if db_service.verify_admin_credentials(username, password):
@@ -291,15 +291,17 @@ def admin():
     """Admin dashboard"""
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-    
+
     try:
         # Use Supabase first
         products = db_service.get_all_products()
         orders = db_service.get_all_orders()
         categories = db_service.get_all_categories()
         catalogues = db_service.get_all_catalogues()
-        
-        return render_template('admin.html', products=products, orders=orders, categories=categories, catalogues=catalogues)
+        messages = db_service.get_all_messages()
+        unread_count = db_service.get_unread_message_count()
+
+        return render_template('admin.html', products=products, orders=orders, categories=categories, catalogues=catalogues, messages=messages, unread_count=unread_count)
     except Exception as e:
         logging.error(f"Error loading admin dashboard: {e}")
         # Fallback to local database
@@ -307,8 +309,10 @@ def admin():
         orders = Order.query.order_by(Order.created_at.desc()).all()
         categories = Category.query.all()
         catalogues = Catalogue.query.all()
-        
-        return render_template('admin.html', products=products, orders=orders, categories=categories, catalogues=catalogues)
+        messages = db_service.get_all_messages()
+        unread_count = db_service.get_unread_message_count()
+
+        return render_template('admin.html', products=products, orders=orders, categories=categories, catalogues=catalogues, messages=messages, unread_count=unread_count)
 
 @app.route('/admin/logout')
 def admin_logout():
@@ -321,10 +325,10 @@ def add_product():
     """Add new product via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         data = request.json
-        
+
         # Prepare product data for Supabase
         product_data = {
             'name': data['name'],
@@ -335,13 +339,13 @@ def add_product():
             'category_id': int(data['category_id']),
             'featured': data.get('featured', False)
         }
-        
+
         if data.get('specifications'):
             product_data['specifications'] = data['specifications']
-        
+
         # Create product in Supabase
         product = db_service.create_product(product_data)
-        
+
         # Also create in local database as backup
         try:
             local_product = Product(
@@ -353,17 +357,17 @@ def add_product():
                 category_id=int(data['category_id']),
                 featured=data.get('featured', False)
             )
-            
+
             if data.get('specifications'):
                 local_product.set_specifications(data['specifications'])
-            
+
             db.session.add(local_product)
             db.session.commit()
         except Exception as local_e:
             logging.error(f"Failed to save to local database: {local_e}")
-        
+
         return jsonify({'success': True, 'product_id': product['id']})
-        
+
     except Exception as e:
         logging.error(f"Error adding product: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -373,10 +377,10 @@ def update_product(product_id):
     """Update product via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         data = request.json
-        
+
         # Prepare product data for Supabase
         product_data = {
             'name': data['name'],
@@ -387,13 +391,13 @@ def update_product(product_id):
             'category_id': int(data['category_id']),
             'featured': data.get('featured', False)
         }
-        
+
         if data.get('specifications'):
             product_data['specifications'] = data['specifications']
-        
+
         # Update product in Supabase
         updated_product = db_service.update_product(product_id, product_data)
-        
+
         # Also update in local database as backup
         try:
             product = Product.query.get(product_id)
@@ -405,16 +409,16 @@ def update_product(product_id):
                 product.image_url = data['image_url']
                 product.category_id = int(data['category_id'])
                 product.featured = data.get('featured', False)
-                
+
                 if data.get('specifications'):
                     product.set_specifications(data['specifications'])
-                
+
                 db.session.commit()
         except Exception as local_e:
             logging.error(f"Failed to update local database: {local_e}")
-        
+
         return jsonify({'success': True})
-        
+
     except Exception as e:
         logging.error(f"Error updating product: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -424,11 +428,11 @@ def delete_product(product_id):
     """Delete product via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         # Delete from Supabase
         db_service.delete_product(product_id)
-        
+
         # Also delete from local database as backup
         try:
             product = Product.query.get(product_id)
@@ -437,9 +441,9 @@ def delete_product(product_id):
                 db.session.commit()
         except Exception as local_e:
             logging.error(f"Failed to delete from local database: {local_e}")
-        
+
         return jsonify({'success': True})
-        
+
     except Exception as e:
         logging.error(f"Error deleting product: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -449,13 +453,13 @@ def update_order_status(order_id):
     """Update order status via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         data = request.json
-        
+
         # Update order status in Supabase
         success = db_service.update_order_status(order_id, data['status'])
-        
+
         if success:
             # Also update in local database as backup
             try:
@@ -465,11 +469,11 @@ def update_order_status(order_id):
                     db.session.commit()
             except Exception as local_e:
                 logging.error(f"Failed to update local database: {local_e}")
-            
+
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': 'Failed to update order status'})
-        
+
     except Exception as e:
         logging.error(f"Error updating order status: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -482,7 +486,7 @@ def get_product_api(product_id):
         product = db_service.get_product_by_id(product_id)
         if not product:
             abort(404)
-        
+
         return jsonify({
             'id': product['id'],
             'name': product['name'],
@@ -512,10 +516,10 @@ def add_catalogue():
     """Add new catalogue via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         data = request.json
-        
+
         # Prepare catalogue data for Supabase
         catalogue_data = {
             'title': data['title'],
@@ -525,10 +529,10 @@ def add_catalogue():
             'category': data.get('category', ''),
             'featured': data.get('featured', False)
         }
-        
+
         # Create catalogue in Supabase
         catalogue = db_service.create_catalogue(catalogue_data)
-        
+
         # Also create in local database as backup
         try:
             local_catalogue = Catalogue(
@@ -539,14 +543,14 @@ def add_catalogue():
                 category=data.get('category', ''),
                 featured=data.get('featured', False)
             )
-            
+
             db.session.add(local_catalogue)
             db.session.commit()
         except Exception as local_e:
             logging.error(f"Failed to save catalogue to local database: {local_e}")
-        
+
         return jsonify({'success': True, 'catalogue_id': catalogue['id']})
-        
+
     except Exception as e:
         logging.error(f"Error adding catalogue: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -558,11 +562,11 @@ def delete_catalogue(catalogue_id):
     """Delete catalogue via AJAX"""
     if not session.get('admin_logged_in'):
         return jsonify({'success': False, 'error': 'Unauthorized'})
-    
+
     try:
         # Delete from Supabase
         db_service.delete_catalogue(catalogue_id)
-        
+
         # Also delete from local database as backup
         try:
             catalogue = Catalogue.query.get(catalogue_id)
@@ -571,9 +575,9 @@ def delete_catalogue(catalogue_id):
                 db.session.commit()
         except Exception as local_e:
             logging.error(f"Failed to delete catalogue from local database: {local_e}")
-        
+
         return jsonify({'success': True})
-        
+
     except Exception as e:
         logging.error(f"Error deleting catalogue: {e}")
         return jsonify({'success': False, 'error': str(e)})
@@ -586,7 +590,7 @@ def view_order(order_id):
         order = db_service.get_order_by_id(order_id)
         if not order:
             abort(404)
-        
+
         return jsonify({
             'id': order['id'],
             'customer_name': order['customer_name'],
@@ -617,6 +621,103 @@ def view_order(order_id):
                 'price': item.price
             } for item in order.items]
         })
+
+# Message Management Routes
+@app.route('/api/admin/messages')
+def get_admin_messages():
+    """Get all messages for admin"""
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Not authorized'}), 401
+
+    try:
+        messages = db_service.get_all_messages()
+        return jsonify({'messages': messages})
+    except Exception as e:
+        logging.error(f"Error fetching messages for admin: {e}")
+        return jsonify({'messages': [], 'error': str(e)})
+
+@app.route('/api/admin/message/<int:message_id>', methods=['GET'])
+def get_message_details(message_id):
+    """Get specific message details"""
+    if 'admin_logged_in' not in session:
+        return jsonify({'error': 'Not authorized'}), 401
+
+    try:
+        message = db_service.get_message_by_id(message_id)
+        if not message:
+            return jsonify({'error': 'Message not found'}), 404
+
+        # Mark as read when viewed
+        db_service.update_message_status(message_id, 'read')
+
+        return jsonify({'message': message})
+    except Exception as e:
+        logging.error(f"Error fetching message {message_id}: {e}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/admin/message/<int:message_id>/reply', methods=['POST'])
+def reply_to_message(message_id):
+    """Reply to a message"""
+    if 'admin_logged_in' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'})
+
+    try:
+        data = request.json
+        reply_text = data.get('reply')
+
+        if not reply_text:
+            return jsonify({'success': False, 'error': 'Reply text is required'})
+
+        admin_username = session.get('admin_username', 'admin')
+        success = db_service.reply_to_message(message_id, reply_text, admin_username)
+
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to send reply'})
+
+    except Exception as e:
+        logging.error(f"Error replying to message {message_id}: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/admin/message/<int:message_id>/status', methods=['PUT'])
+def update_message_status_route(message_id):
+    """Update message status"""
+    if 'admin_logged_in' not in session:
+        return jsonify({'success': False, 'error': 'Unauthorized'})
+
+    try:
+        data = request.json
+        status = data.get('status')
+
+        if status not in ['read', 'unread', 'replied']:
+            return jsonify({'success': False, 'error': 'Invalid status'})
+
+        success = db_service.update_message_status(message_id, status)
+
+        if success:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'Failed to update status'})
+
+    except Exception as e:
+        logging.error(f"Error updating message status: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/messages/by-email')
+def get_user_messages():
+    """Get messages by user email"""
+    email = request.args.get('email')
+
+    if not email:
+        return jsonify({'messages': []})
+
+    try:
+        messages = db_service.get_messages_by_email(email)
+        return jsonify({'messages': messages})
+    except Exception as e:
+        logging.error(f"Error fetching user messages: {e}")
+        return jsonify({'messages': [], 'error': str(e)})
 
 @app.errorhandler(404)
 def not_found(error):

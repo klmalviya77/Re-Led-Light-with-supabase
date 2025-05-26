@@ -340,6 +340,78 @@ class DatabaseService:
         for catalogue in sample_catalogues:
             self.create_catalogue(catalogue)
 
+    # Message operations
+    def create_message(self, message_data: Dict) -> Dict:
+        """Create a new contact message"""
+        try:
+            message_data['created_at'] = datetime.utcnow().isoformat()
+            message_data['status'] = 'unread'
+            response = self.client.table('messages').insert(message_data).execute()
+            return response.data[0] if response.data else {}
+        except Exception as e:
+            logging.error(f"Error creating message: {e}")
+            raise
+
+    def get_all_messages(self) -> List[Dict]:
+        """Get all messages for admin panel"""
+        try:
+            response = self.client.table('messages').select('*').order('created_at', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logging.error(f"Error fetching messages: {e}")
+            return []
+
+    def get_messages_by_email(self, email: str) -> List[Dict]:
+        """Get messages by sender email"""
+        try:
+            response = self.client.table('messages').select('*').eq('sender_email', email).order('created_at', desc=True).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logging.error(f"Error fetching messages by email: {e}")
+            return []
+
+    def get_message_by_id(self, message_id: int) -> Optional[Dict]:
+        """Get message by ID"""
+        try:
+            response = self.client.table('messages').select('*').eq('id', message_id).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            logging.error(f"Error fetching message {message_id}: {e}")
+            return None
+
+    def update_message_status(self, message_id: int, status: str) -> bool:
+        """Update message status (read/unread)"""
+        try:
+            self.client.table('messages').update({'status': status}).eq('id', message_id).execute()
+            return True
+        except Exception as e:
+            logging.error(f"Error updating message status: {e}")
+            return False
+
+    def reply_to_message(self, message_id: int, reply_text: str, admin_username: str) -> bool:
+        """Add admin reply to a message"""
+        try:
+            reply_data = {
+                'admin_reply': reply_text,
+                'admin_reply_at': datetime.utcnow().isoformat(),
+                'replied_by': admin_username,
+                'status': 'replied'
+            }
+            self.client.table('messages').update(reply_data).eq('id', message_id).execute()
+            return True
+        except Exception as e:
+            logging.error(f"Error replying to message: {e}")
+            return False
+
+    def get_unread_message_count(self) -> int:
+        """Get count of unread messages"""
+        try:
+            response = self.client.table('messages').select('id', count='exact').eq('status', 'unread').execute()
+            return response.count if response.count else 0
+        except Exception as e:
+            logging.error(f"Error getting unread message count: {e}")
+            return 0
+
 
 # Initialize the database service
 db_service = DatabaseService()

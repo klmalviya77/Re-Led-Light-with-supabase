@@ -110,6 +110,9 @@ CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
 CREATE INDEX IF NOT EXISTS idx_catalogues_featured ON catalogues(featured);
+CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(status);
+CREATE INDEX IF NOT EXISTS idx_messages_email ON messages(sender_email);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
 
 -- Insert sample categories
 INSERT INTO categories (name, description) VALUES
@@ -149,6 +152,21 @@ INSERT INTO catalogues (title, description, pdf_url, thumbnail_url, category, fe
  'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=300', 'Panel Lights', false)
 ON CONFLICT DO NOTHING;
 
+-- Messages table for contact form and admin communication
+CREATE TABLE IF NOT EXISTS messages (
+    id BIGSERIAL PRIMARY KEY,
+    sender_name VARCHAR(200) NOT NULL,
+    sender_email VARCHAR(255) NOT NULL,
+    sender_phone VARCHAR(20),
+    subject VARCHAR(300) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'unread',
+    admin_reply TEXT,
+    admin_reply_at TIMESTAMP WITH TIME ZONE,
+    replied_by VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Insert default admin user (CHANGE PASSWORD IN PRODUCTION!)
 INSERT INTO admin_users (username, password, email) VALUES
 ('admin', 'admin123', 'admin@reledlight.com')
@@ -161,6 +179,7 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catalogues ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access to products, categories, and catalogues
 CREATE POLICY "Public read access for categories" ON categories FOR SELECT USING (true);
@@ -182,3 +201,8 @@ CREATE POLICY "Admin full access to orders" ON orders FOR ALL USING (true);
 CREATE POLICY "Admin full access to order items" ON order_items FOR ALL USING (true);
 CREATE POLICY "Admin full access to catalogues" ON catalogues FOR ALL USING (true);
 CREATE POLICY "Admin read access" ON admin_users FOR SELECT USING (true);
+
+-- Message policies
+CREATE POLICY "Public can send messages" ON messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can view their own messages" ON messages FOR SELECT USING (true);
+CREATE POLICY "Admin full access to messages" ON messages FOR ALL USING (true);
