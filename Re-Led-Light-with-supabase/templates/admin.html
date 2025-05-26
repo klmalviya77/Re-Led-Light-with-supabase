@@ -134,7 +134,7 @@
                                              style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
                                     </td>
                                     <td>{{ product.name }}</td>
-                                    <td>{{ product.category.name }}</td>
+                                    <td>{{ product.categories.name if product.categories else 'N/A' }}</td>
                                     <td>${{ "%.2f"|format(product.price) }}</td>
                                     <td>{{ product.stock }}</td>
                                     <td>
@@ -273,7 +273,7 @@
                                 <small class="text-muted">{{ message.sender_email }}</small>
                             </td>
                             <td>{{ message.subject }}</td>
-                            <td>{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ message.created_at[:19].replace('T', ' ') if message.created_at else 'N/A' }}</td>
                             <td>
                                 <span class="badge 
                                     {% if message.status == 'unread' %}bg-warning

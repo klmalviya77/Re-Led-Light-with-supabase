@@ -188,6 +188,29 @@ def contact():
     """Contact Us page"""
     return render_template('contact.html')
 
+@app.route('/api/submit-message', methods=['POST'])
+def submit_message():
+    """Submit contact message via AJAX"""
+    try:
+        data = request.json
+
+        # Format message data for Supabase
+        message_data = {
+            'sender_name': data['name'],
+            'sender_email': data['email'],
+            'subject': data['subject'],
+            'message': data['message']
+        }
+
+        # Create message using Supabase
+        message = db_service.create_message(message_data)
+
+        return jsonify({'success': True, 'message_id': message['id']})
+
+    except Exception as e:
+        logging.error(f"Error submitting message: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/orders')
 def orders():
     """Orders tracking page for users"""

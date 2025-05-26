@@ -356,7 +356,22 @@ class DatabaseService:
         """Get all messages for admin panel"""
         try:
             response = self.client.table('messages').select('*').order('created_at', desc=True).execute()
-            return response.data if response.data else []
+            messages = response.data if response.data else []
+            
+            # Convert string dates to datetime objects for template compatibility
+            for message in messages:
+                if message.get('created_at') and isinstance(message['created_at'], str):
+                    try:
+                        message['created_at'] = datetime.fromisoformat(message['created_at'].replace('Z', '+00:00'))
+                    except:
+                        pass
+                if message.get('admin_reply_at') and isinstance(message['admin_reply_at'], str):
+                    try:
+                        message['admin_reply_at'] = datetime.fromisoformat(message['admin_reply_at'].replace('Z', '+00:00'))
+                    except:
+                        pass
+            
+            return messages
         except Exception as e:
             logging.error(f"Error fetching messages: {e}")
             return []
