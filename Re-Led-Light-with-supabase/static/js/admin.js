@@ -162,20 +162,87 @@ function updateOrderStatus(orderId, newStatus) {
 }
 
 function viewOrderDetails(orderId) {
-    // This would typically fetch order details from the server
-    // For now, we'll show a placeholder modal
-    const orderDetailsHtml = `
-        <div class="text-center py-4">
-            <i class="fas fa-info-circle fa-3x text-info mb-3"></i>
-            <h5>Order #${orderId}</h5>
-            <p>Order details feature coming soon...</p>
-            <p class="text-muted">This will show detailed order information including items, customer details, and shipping information.</p>
-        </div>
-    `;
+    // Fetch order details from the server
+    fetch(`/orders/${orderId}`)
+        .then(response => response.json())
+        .then(order => {
+            const orderDetailsHtml = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user text-primary me-2"></i>Customer Information</h6>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <p class="mb-1"><strong>Name:</strong> ${order.customer_name}</p>
+                            <p class="mb-1"><strong>Phone:</strong> ${order.customer_phone || 'N/A'}</p>
+                            <p class="mb-0"><strong>Address:</strong> ${order.customer_address}</p>
+                        </div>
 
-    document.getElementById('orderDetails').innerHTML = orderDetailsHtml;
-    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
-    modal.show();
+                        <h6><i class="fas fa-info-circle text-primary me-2"></i>Order Information</h6>
+                        <div class="bg-light p-3 rounded mb-3">
+                            <p class="mb-1"><strong>Order ID:</strong> #${order.id}</p>
+                            <p class="mb-1"><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+                            <p class="mb-1"><strong>Status:</strong> 
+                                <span class="badge ${getOrderStatusClass(order.status)}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                            </p>
+                            <p class="mb-0"><strong>Total Amount:</strong> $${order.total_amount}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-shopping-cart text-primary me-2"></i>Ordered Items</h6>
+                        <div class="bg-light p-3 rounded">
+                            ${order.items.map(item => `
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                    <div>
+                                        <strong>${item.product_name}</strong><br>
+                                        <small class="text-muted">Qty: ${item.quantity}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <strong>$${item.price}</strong><br>
+                                        <small class="text-muted">Total: $${(item.price * item.quantity).toFixed(2)}</small>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6><i class="fas fa-clock text-primary me-2"></i>Order Timeline</h6>
+                    <div class="bg-light p-3 rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>Order Placed - ${new Date(order.created_at).toLocaleString()}</span>
+                        </div>
+                        ${order.status !== 'pending' ? `
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-cog text-warning me-2"></i>
+                            <span>Status Updated to ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('orderDetails').innerHTML = orderDetailsHtml;
+            document.getElementById('orderModalTitle').textContent = `Order #${orderId} Details`;
+            const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            showErrorMessage('Failed to load order details');
+        });
+}
+
+function getOrderStatusClass(status) {
+    switch(status) {
+        case 'pending': return 'bg-warning';
+        case 'processing': return 'bg-info';
+        case 'shipped': return 'bg-primary';
+        case 'delivered': return 'bg-success';
+        case 'cancelled': return 'bg-danger';
+        default: return 'bg-secondary';
+    }
 }
 
 // Utility Functions
@@ -465,6 +532,37 @@ function exportOrders() {
     // This would generate a CSV or JSON export of orders
     console.log('Export orders functionality would be implemented here');
     showSuccessMessage('Export feature coming soon!');
+}
+
+// Print order details
+function printOrderDetails() {
+    const orderDetails = document.getElementById('orderDetails').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Order Details - Re Led Light</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    @media print {
+                        .no-print { display: none !important; }
+                        body { font-size: 12px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container mt-4">
+                    <div class="text-center mb-4">
+                        <h2>Re Led Light</h2>
+                        <h4>Order Details</h4>
+                    </div>
+                    ${orderDetails}
+                </div>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
 }
 
 // Bulk operations

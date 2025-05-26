@@ -85,9 +85,6 @@ CREATE TABLE IF NOT EXISTS admin_users (
 INSERT INTO admin_users (username, password) 
 VALUES ('admin', 'admin123') 
 ON CONFLICT (username) DO NOTHING;
-
--- Order items table
-CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY,
     order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
     product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,

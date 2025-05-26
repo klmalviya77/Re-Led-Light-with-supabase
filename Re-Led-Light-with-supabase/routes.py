@@ -198,6 +198,7 @@ def submit_message():
         message_data = {
             'sender_name': data['name'],
             'sender_email': data['email'],
+            'sender_phone': data.get('phone', ''),
             'subject': data['subject'],
             'message': data['message']
         }
@@ -578,7 +579,47 @@ def add_catalogue():
         logging.error(f"Error adding catalogue: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/admin/catalogue/<int:catalogue_id>', methods=['PUT'])
+def update_catalogue(catalogue_id):
+    """Update catalogue via AJAX"""
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'error': 'Unauthorized'})
 
+    try:
+        data = request.json
+
+        # Prepare catalogue data for Supabase
+        catalogue_data = {
+            'title': data['title'],
+            'description': data['description'],
+            'pdf_url': data['pdf_url'],
+            'thumbnail_url': data.get('thumbnail_url', ''),
+            'category': data.get('category', ''),
+            'featured': data.get('featured', False)
+        }
+
+        # Update catalogue in Supabase
+        updated_catalogue = db_service.update_catalogue(catalogue_id, catalogue_data)
+
+        # Also update in local database as backup
+        try:
+            catalogue = Catalogue.query.get(catalogue_id)
+            if catalogue:
+                catalogue.title = data['title']
+                catalogue.description = data['description']
+                catalogue.pdf_url = data['pdf_url']
+                catalogue.thumbnail_url = data.get('thumbnail_url', '')
+                catalogue.category = data.get('category', '')
+                catalogue.featured = data.get('featured', False)
+                db.session.commit()
+        except Exception as local_e:
+            logging.error(f"Failed to update catalogue in local database: {local_e}")
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        logging.error(f"Error updating catalogue: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/catalogue/<int:catalogue_id>', methods=['DELETE'])
 def delete_catalogue(catalogue_id):

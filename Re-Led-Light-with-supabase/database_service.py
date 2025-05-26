@@ -243,6 +243,15 @@ class DatabaseService:
             logging.error(f"Error creating catalogue: {e}")
             raise
 
+    def update_catalogue(self, catalogue_id: int, catalogue_data: Dict) -> Dict:
+        """Update a catalogue"""
+        try:
+            response = self.client.table('catalogues').update(catalogue_data).eq('id', catalogue_id).execute()
+            return response.data[0] if response.data else {}
+        except Exception as e:
+            logging.error(f"Error updating catalogue {catalogue_id}: {e}")
+            raise
+
     def delete_catalogue(self, catalogue_id: int) -> bool:
         """Delete a catalogue"""
         try:
