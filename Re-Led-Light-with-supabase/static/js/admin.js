@@ -1,3 +1,4 @@
+
 // Admin panel functionality for Re Led Light website
 
 // Global variables
@@ -484,9 +485,6 @@ function bulkUpdateOrderStatus(orderIds, newStatus) {
     showSuccessMessage('Bulk update feature coming soon!');
 }
 
-editCatalogueModal.show();
-}
-
 // Message Management Functions
 let currentMessageId = null;
 
@@ -500,7 +498,7 @@ function refreshMessages() {
         })
         .catch(error => {
             console.error('Error refreshing messages:', error);
-            showAlert('Error refreshing messages', 'danger');
+            showErrorMessage('Error refreshing messages');
         });
 }
 
@@ -528,11 +526,11 @@ function updateMessagesTable(messages) {
             </td>
             <td>
                 <button class="btn btn-sm btn-primary" onclick="viewMessage(${message.id})">
-                    <i class="bi bi-eye"></i> View
+                    <i class="fas fa-eye"></i> View
                 </button>
                 ${message.status !== 'replied' ? `
                 <button class="btn btn-sm btn-success" onclick="replyToMessage(${message.id})">
-                    <i class="bi bi-reply"></i> Reply
+                    <i class="fas fa-reply"></i> Reply
                 </button>
                 ` : ''}
             </td>
@@ -565,7 +563,7 @@ function viewMessage(messageId) {
         })
         .catch(error => {
             console.error('Error fetching message:', error);
-            showAlert('Error loading message', 'danger');
+            showErrorMessage('Error loading message');
         });
 }
 
@@ -640,7 +638,7 @@ function sendReply() {
     const replyText = document.getElementById('replyText').value.trim();
 
     if (!replyText) {
-        showAlert('Please enter a reply message', 'warning');
+        showErrorMessage('Please enter a reply message');
         return;
     }
 
@@ -656,7 +654,7 @@ function sendReply() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert('Reply sent successfully', 'success');
+            showSuccessMessage('Reply sent successfully');
 
             // Close modal
             const messageReplyModal = bootstrap.Modal.getInstance(document.getElementById('messageReplyModal'));
@@ -665,11 +663,11 @@ function sendReply() {
             // Refresh messages
             refreshMessages();
         } else {
-            showAlert('Error: ' + (data.error || 'Failed to send reply'), 'danger');
+            showErrorMessage('Error: ' + (data.error || 'Failed to send reply'));
         }
     })
     .catch(error => {
         console.error('Error sending reply:', error);
-        showAlert('Error sending reply', 'danger');
+        showErrorMessage('Error sending reply');
     });
 }
