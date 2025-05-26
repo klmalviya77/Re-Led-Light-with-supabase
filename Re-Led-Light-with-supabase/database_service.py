@@ -163,7 +163,17 @@ class DatabaseService:
         """Get all orders with items"""
         try:
             response = self.client.table('orders').select('*, order_items(*, products(name))').order('created_at', desc=True).execute()
-            return response.data if response.data else []
+            orders = response.data if response.data else []
+            
+            # Convert string dates to datetime objects for template compatibility
+            for order in orders:
+                if order.get('created_at') and isinstance(order['created_at'], str):
+                    try:
+                        order['created_at'] = datetime.fromisoformat(order['created_at'].replace('Z', '+00:00'))
+                    except:
+                        pass
+            
+            return orders
         except Exception as e:
             logging.error(f"Error fetching orders: {e}")
             return []
