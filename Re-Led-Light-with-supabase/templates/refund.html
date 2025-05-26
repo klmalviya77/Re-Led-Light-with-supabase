@@ -1,0 +1,99 @@
+
+{% extends "base.html" %}
+
+{% block title %}Refund Policy - Re Led Light{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1 class="display-4 mb-4 text-center">Refund Policy</h1>
+            <p class="text-muted text-center mb-5">Last updated: {{ moment().format('MMMM DD, YYYY') }}</p>
+
+            <div class="card">
+                <div class="card-body">
+                    <h3>1. Return Eligibility</h3>
+                    <p>Items are eligible for return within <strong>30 days</strong> of purchase if they meet the following conditions:</p>
+                    <ul>
+                        <li>Items are in original, unused condition</li>
+                        <li>All original packaging and accessories are included</li>
+                        <li>No signs of damage or wear</li>
+                        <li>Valid proof of purchase is provided</li>
+                    </ul>
+
+                    <h3>2. Non-Returnable Items</h3>
+                    <p>The following items cannot be returned:</p>
+                    <ul>
+                        <li>Custom or specially ordered products</li>
+                        <li>Installed products (unless defective)</li>
+                        <li>Items damaged by misuse or normal wear</li>
+                        <li>Products modified or altered by the customer</li>
+                        <li>Sale or clearance items (unless defective)</li>
+                    </ul>
+
+                    <h3>3. Return Process</h3>
+                    <ol>
+                        <li><strong>Contact Us:</strong> Email support@reledlight.com or call +91 12345 67890</li>
+                        <li><strong>Return Authorization:</strong> We'll provide a Return Merchandise Authorization (RMA) number</li>
+                        <li><strong>Package Items:</strong> Securely package items with RMA number clearly marked</li>
+                        <li><strong>Ship Back:</strong> Send to our returns processing center (address provided with RMA)</li>
+                        <li><strong>Inspection:</strong> We'll inspect returned items within 5-7 business days</li>
+                    </ol>
+
+                    <h3>4. Refund Timeline</h3>
+                    <ul>
+                        <li><strong>Processing:</strong> 5-7 business days after we receive your return</li>
+                        <li><strong>Refund Method:</strong> Original payment method used for purchase</li>
+                        <li><strong>Credit Card:</strong> 3-5 business days to appear on statement</li>
+                        <li><strong>Bank Transfer:</strong> 5-10 business days</li>
+                    </ul>
+
+                    <h3>5. Shipping Costs</h3>
+                    <ul>
+                        <li><strong>Defective Items:</strong> We cover return shipping costs</li>
+                        <li><strong>Customer Returns:</strong> Customer responsible for return shipping</li>
+                        <li><strong>Wrong Item Sent:</strong> We cover all shipping costs</li>
+                    </ul>
+
+                    <h3>6. Exchanges</h3>
+                    <p>We offer exchanges for:</p>
+                    <ul>
+                        <li>Defective products</li>
+                        <li>Wrong items shipped</li>
+                        <li>Size or specification changes (subject to availability)</li>
+                    </ul>
+
+                    <h3>7. Warranty vs. Returns</h3>
+                    <p>Items with manufacturing defects after 30 days are covered under manufacturer warranty, not our return policy.</p>
+
+                    <h3>8. Refund Amounts</h3>
+                    <ul>
+                        <li><strong>Full Refund:</strong> Product cost (minus original shipping if applicable)</li>
+                        <li><strong>Restocking Fee:</strong> 15% may apply to opened electronic items</li>
+                        <li><strong>Partial Refund:</strong> For items not in original condition</li>
+                    </ul>
+
+                    <h3>9. Installation Services</h3>
+                    <p>Installation service fees are refundable only if service was not provided or was unsatisfactory as determined by our quality review.</p>
+
+                    <h3>10. Bulk Orders</h3>
+                    <p>Special return terms may apply to bulk or commercial orders. Please refer to your purchase agreement or contact our commercial sales team.</p>
+
+                    <h3>11. Contact for Returns</h3>
+                    <p>For all return inquiries:</p>
+                    <ul>
+                        <li>Email: returns@reledlight.com</li>
+                        <li>Phone: +91 12345 67890</li>
+                        <li>Hours: Monday - Saturday, 9:00 AM - 6:00 PM IST</li>
+                    </ul>
+
+                    <div class="alert alert-info mt-4">
+                        <h5><i class="fas fa-info-circle me-2"></i>Important Note</h5>
+                        <p class="mb-0">Please inspect your order immediately upon delivery and contact us within 48 hours if there are any issues with your shipment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

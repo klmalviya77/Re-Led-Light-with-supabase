@@ -4,6 +4,42 @@
 let products = [];
 let orders = [];
 
+// Admin Panel JavaScript Functions
+
+let currentEditingProductId = null;
+let currentEditingCatalogueId = null;
+let currentEditingCategoryId = null;
+
+// Session timeout warning
+let sessionWarningShown = false;
+let sessionCheckInterval = setInterval(function() {
+    // Check session every 5 minutes
+    fetch('/admin', {
+        method: 'HEAD',
+        credentials: 'same-origin'
+    }).then(response => {
+        if (response.status === 401 || response.redirected) {
+            if (!sessionWarningShown) {
+                sessionWarningShown = true;
+                alert('Your session has expired. You will be redirected to the login page.');
+                window.location.href = '/admin-login';
+            }
+        }
+    }).catch(error => {
+        console.error('Session check failed:', error);
+    });
+}, 300000); // 5 minutes
+
+// Enhanced error handling for API calls
+function handleApiError(error, fallbackMessage) {
+    if (error.includes('Session expired') || error.includes('expired')) {
+        alert('Your session has expired. Please login again.');
+        window.location.href = '/admin-login';
+        return;
+    }
+    alert(fallbackMessage + ': ' + error);
+}
+
 // Initialize admin functionality
 document.addEventListener('DOMContentLoaded', function() {
     loadProducts();
@@ -106,9 +142,9 @@ function saveProduct() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showErrorMessage('Network error occurred');
-    });
+            console.error('Error:', error);
+            handleApiError(error.toString(), 'Error saving product');
+        });
 }
 
 function deleteProduct(productId) {

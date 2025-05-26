@@ -4,9 +4,33 @@ from models import Product, Category, Order, OrderItem, Catalogue
 from database_service import db_service
 import json
 import logging
+import functools
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
+
+# Security Enhancement: Admin session validation
+def validate_admin_session():
+    """Validates the admin session based on multiple factors."""
+    if 'admin_logged_in' not in session:
+        return False
+
+    # Add more checks here, like timestamp verification, IP address check, etc.
+    # Example: Check if the session is older than a certain time
+    # if session['admin_login_time'] < time.time() - SESSION_TIMEOUT:
+    #     return False
+
+    return True
+
+def admin_required(view):
+    """Decorator to protect admin routes."""
+    @functools.wraps(view)
+    def wrapped_view(*args, **kwargs):
+        if not validate_admin_session():
+            flash('Unauthorized. Please log in.', 'error')
+            return redirect(url_for('admin_login'))
+        return view(*args, **kwargs)
+    return wrapped_view
 
 # Admin authentication now handled exclusively through Supabase
 
@@ -29,14 +53,16 @@ def index():
         return render_template('index.html', 
                              categories=categories, 
                              featured_products=featured_products, 
-                             featured_catalogues=featured_catalogues)
+                             featured_catalogues=featured_catalogues,
+                             about_us_content="This is a sample about us content for the home page.")
     except Exception as e:
         logging.error(f"Error loading homepage: {e}")
         # Fallback to local database if Supabase fails
         categories = Category.query.all()
         featured_products = Product.query.filter_by(featured=True).limit(6).all()
         featured_catalogues = Catalogue.query.filter_by(featured=True).limit(3).all()
-        return render_template('index.html', categories=categories, featured_products=featured_products, featured_catalogues=featured_catalogues)
+        return render_template('index.html', categories=categories, featured_products=featured_products, featured_catalogues=featured_catalogues,
+                               about_us_content="This is a sample about us content for the home page.")
 
 @app.route('/shop')
 def shop():
@@ -62,7 +88,8 @@ def shop():
                     break
 
         return render_template('shop.html', products=products, categories=categories, 
-                             selected_category=selected_category, search_query=search_query)
+                             selected_category=selected_category, search_query=search_query,
+                             about_us_content="This is a sample about us content for the shop page.")
     except Exception as e:
         logging.error(f"Error in shop page: {e}")
         # Fallback to local database
@@ -80,7 +107,8 @@ def shop():
         selected_category = Category.query.get(category_id) if category_id else None
 
         return render_template('shop.html', products=products, categories=categories, 
-                             selected_category=selected_category, search_query=search_query)
+                             selected_category=selected_category, search_query=search_query,
+                             about_us_content="This is a sample about us content for the shop page.")
 
 @app.route('/product/<int:product_id>')
 def product_detail(product_id):
@@ -95,7 +123,8 @@ def product_detail(product_id):
         # Filter out current product and limit to 4
         related_products = [p for p in related_products if p['id'] != product_id][:4]
 
-        return render_template('product.html', product=product, related_products=related_products)
+        return render_template('product.html', product=product, related_products=related_products,
+                               about_us_content="This is a sample about us content for the product detail page.")
     except Exception as e:
         logging.error(f"Error loading product {product_id}: {e}")
         # Fallback to local database
@@ -105,12 +134,13 @@ def product_detail(product_id):
             Product.id != product_id
         ).limit(4).all()
 
-        return render_template('product.html', product=product, related_products=related_products)
+        return render_template('product.html', product=product, related_products=related_products,
+                               about_us_content="This is a sample about us content for the product detail page.")
 
 @app.route('/cart')
 def cart():
     """Shopping cart page"""
-    return render_template('cart.html')
+    return render_template('cart.html', about_us_content="This is a sample about us content for the cart page.")
 
 @app.route('/catalogues')
 def catalogues():
@@ -119,13 +149,15 @@ def catalogues():
         # Use Supabase first
         catalogues = db_service.get_all_catalogues()
         featured_catalogues = db_service.get_featured_catalogues()
-        return render_template('catalogues.html', catalogues=catalogues, featured_catalogues=featured_catalogues)
+        return render_template('catalogues.html', catalogues=catalogues, featured_catalogues=featured_catalogues,
+                               about_us_content="This is a sample about us content for the catalogues page.")
     except Exception as e:
         logging.error(f"Error loading catalogues: {e}")
         # Fallback to local database
         catalogues = Catalogue.query.all()
         featured_catalogues = Catalogue.query.filter_by(featured=True).all()
-        return render_template('catalogues.html', catalogues=catalogues, featured_catalogues=featured_catalogues)
+        return render_template('catalogues.html', catalogues=catalogues, featured_catalogues=featured_catalogues,
+                               about_us_content="This is a sample about us content for the catalogues page.")
 
 @app.route('/view-pdf/<int:catalogue_id>')
 def view_pdf(catalogue_id):
@@ -142,17 +174,19 @@ def view_pdf(catalogue_id):
         if not catalogue:
             abort(404)
 
-        return render_template('pdf_viewer.html', catalogue=catalogue)
+        return render_template('pdf_viewer.html', catalogue=catalogue,
+                               about_us_content="This is a sample about us content for the PDF viewer page.")
     except Exception as e:
         logging.error(f"Error loading catalogue {catalogue_id}: {e}")
         # Fallback to local database
         catalogue = Catalogue.query.get_or_404(catalogue_id)
-        return render_template('pdf_viewer.html', catalogue=catalogue)
+        return render_template('pdf_viewer.html', catalogue=catalogue,
+                               about_us_content="This is a sample about us content for the PDF viewer page.")
 
 @app.route('/checkout')
 def checkout():
     """Checkout page"""
-    return render_template('checkout.html')
+    return render_template('checkout.html', about_us_content="This is a sample about us content for the checkout page.")
 
 @app.route('/api/submit-order', methods=['POST'])
 def submit_order():
@@ -185,7 +219,7 @@ def submit_order():
 @app.route('/contact')
 def contact():
     """Contact Us page"""
-    return render_template('contact.html')
+    return render_template('contact.html', about_us_content="This is a sample about us content for the contact page.")
 
 @app.route('/api/submit-message', methods=['POST'])
 def submit_message():
@@ -214,7 +248,7 @@ def submit_message():
 @app.route('/orders')
 def orders():
     """Orders tracking page for users"""
-    return render_template('orders.html')
+    return render_template('orders.html', about_us_content="This is a sample about us content for the orders page.")
 
 @app.route('/api/user_orders')
 def user_orders():
@@ -249,10 +283,11 @@ def user_orders():
         return jsonify({'orders': [], 'error': str(e)})
 
 @app.route('/admin/catalogues', methods=['GET'])
+@admin_required
 def get_admin_catalogues():
     """Get all catalogues for admin"""
-    if 'admin_logged_in' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
+    if not validate_admin_session():
+        return jsonify({'error': 'Session expired. Please login again.'}), 401
 
     try:
         # Use Supabase first
@@ -289,6 +324,8 @@ def admin_auth():
         if db_service.verify_admin_credentials(username, password):
             session['admin_logged_in'] = True
             session['admin_username'] = username
+            # Store login timestamp for security
+            # session['admin_login_time'] = time.time() # Import time
             return redirect(url_for('admin'))
         else:
             flash('Invalid credentials', 'error')
@@ -299,6 +336,7 @@ def admin_auth():
         return redirect(url_for('admin_login'))
 
 @app.route('/admin')
+@admin_required
 def admin():
     """Admin dashboard"""
     if not session.get('admin_logged_in'):
@@ -333,10 +371,11 @@ def admin_logout():
     return redirect(url_for('index'))
 
 @app.route('/api/admin/product', methods=['POST'])
+@admin_required
 def add_product():
     """Add new product via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -385,10 +424,11 @@ def add_product():
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/product/<int:product_id>', methods=['PUT'])
+@admin_required
 def update_product(product_id):
     """Update product via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -436,10 +476,11 @@ def update_product(product_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/product/<int:product_id>', methods=['DELETE'])
+@admin_required
 def delete_product(product_id):
     """Delete product via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         # Delete from Supabase
@@ -461,10 +502,11 @@ def delete_product(product_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/order/<int:order_id>/status', methods=['PUT'])
+@admin_required
 def update_order_status(order_id):
     """Update order status via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -524,10 +566,11 @@ def get_product_api(product_id):
 
 # Catalogue Management Routes
 @app.route('/api/admin/catalogue', methods=['POST'])
+@admin_required
 def add_catalogue():
     """Add new catalogue via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -568,10 +611,11 @@ def add_catalogue():
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/catalogue/<int:catalogue_id>', methods=['PUT'])
+@admin_required
 def update_catalogue(catalogue_id):
     """Update catalogue via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -610,10 +654,11 @@ def update_catalogue(catalogue_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/catalogue/<int:catalogue_id>', methods=['DELETE'])
+@admin_required
 def delete_catalogue(catalogue_id):
     """Delete catalogue via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         # Delete from Supabase
@@ -676,10 +721,11 @@ def view_order(order_id):
 
 # Category Management Routes
 @app.route('/api/admin/category', methods=['POST'])
+@admin_required
 def add_category():
     """Add new category via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -698,10 +744,11 @@ def add_category():
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/category/<int:category_id>', methods=['PUT'])
+@admin_required
 def update_category(category_id):
     """Update category via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -723,10 +770,11 @@ def update_category(category_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/category/<int:category_id>', methods=['DELETE'])
+@admin_required
 def delete_category(category_id):
     """Delete category via AJAX"""
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         # Check if category has products
@@ -745,10 +793,11 @@ def delete_category(category_id):
 
 # Message Management Routes
 @app.route('/api/admin/messages')
+@admin_required
 def get_admin_messages():
     """Get all messages for admin"""
-    if 'admin_logged_in' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
+    if not validate_admin_session():
+        return jsonify({'error': 'Session expired. Please login again.'}), 401
 
     try:
         messages = db_service.get_all_messages()
@@ -758,10 +807,11 @@ def get_admin_messages():
         return jsonify({'messages': [], 'error': str(e)})
 
 @app.route('/api/admin/message/<int:message_id>', methods=['GET'])
+@admin_required
 def get_message_details(message_id):
     """Get specific message details"""
-    if 'admin_logged_in' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
+    if not validate_admin_session():
+        return jsonify({'error': 'Session expired. Please login again.'}), 401
 
     try:
         message = db_service.get_message_by_id(message_id)
@@ -777,10 +827,11 @@ def get_message_details(message_id):
         return jsonify({'error': str(e)})
 
 @app.route('/api/admin/message/<int:message_id>/reply', methods=['POST'])
+@admin_required
 def reply_to_message(message_id):
     """Reply to a message"""
-    if 'admin_logged_in' not in session:
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -802,10 +853,11 @@ def reply_to_message(message_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/message/<int:message_id>/status', methods=['PUT'])
+@admin_required
 def update_message_status_route(message_id):
     """Update message status"""
-    if 'admin_logged_in' not in session:
-        return jsonify({'success': False, 'error': 'Unauthorized'})
+    if not validate_admin_session():
+        return jsonify({'success': False, 'error': 'Session expired. Please login again.'}), 401
 
     try:
         data = request.json
@@ -839,6 +891,26 @@ def get_user_messages():
     except Exception as e:
         logging.error(f"Error fetching user messages: {e}")
         return jsonify({'messages': [], 'error': str(e)})
+
+@app.route('/terms')
+def terms():
+    """Terms and conditions page"""
+    return render_template('terms.html', about_us_content="This is a sample about us content for the terms page.")
+
+@app.route('/privacy')
+def privacy():
+    """Privacy policy page"""
+    return render_template('privacy.html', about_us_content="This is a sample about us content for the privacy page.")
+
+@app.route('/refund')
+def refund():
+    """Refund policy page"""
+    return render_template('refund.html', about_us_content="This is a sample about us content for the refund page.")
+
+@app.route('/about')
+def about():
+    """About us page"""
+    return render_template('about.html', about_us_content="This is a sample about us content for the about page.")
 
 @app.errorhandler(404)
 def not_found(error):

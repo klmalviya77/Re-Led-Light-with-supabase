@@ -1,0 +1,62 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Security - Re Led Light{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="display-4 mb-4 text-center text-danger">
+                <i class="fas fa-shield-alt me-3"></i>Admin Panel Security
+            </h1>
+            
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Security Notice</h4>
+                <p>This admin panel is protected by multiple security layers:</p>
+                <ul class="mb-0">
+                    <li><strong>Rate Limiting:</strong> Maximum 5 login attempts per 15 minutes</li>
+                    <li><strong>Session Management:</strong> 2-hour automatic session timeout</li>
+                    <li><strong>IP Validation:</strong> Session tied to originating IP address</li>
+                    <li><strong>Secure Authentication:</strong> Credentials verified through Supabase</li>
+                    <li><strong>Activity Monitoring:</strong> All admin actions are logged</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Security Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Authentication Security</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Database-stored credentials</li>
+                                <li><i class="fas fa-check text-success me-2"></i>No hardcoded passwords</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Encrypted password storage</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Failed attempt tracking</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Session Security</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Automatic session expiration</li>
+                                <li><i class="fas fa-check text-success me-2"></i>IP address validation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Client-side session monitoring</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Secure session tokens</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('admin_login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Access Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
