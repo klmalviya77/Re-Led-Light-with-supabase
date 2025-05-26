@@ -1,4 +1,3 @@
-
 // Admin panel functionality for Re Led Light website
 
 // Global variables

@@ -285,8 +285,27 @@ class DatabaseService:
             if not catalogues:
                 self._create_sample_catalogues()
 
+            # Check if admin users exist
+            try:
+                response = self.client.table('admin_users').select('*').limit(1).execute()
+                if not response.data:
+                    self._create_default_admin()
+            except Exception as admin_e:
+                logging.error(f"Error checking admin users: {admin_e}")
+
         except Exception as e:
             logging.error(f"Error initializing sample data: {e}")
+
+    def _create_default_admin(self):
+        """Create default admin user"""
+        try:
+            admin_data = {
+                "username": "admin",
+                "password": "admin123"  # In production, use proper password hashing
+            }
+            self.client.table('admin_users').insert(admin_data).execute()
+        except Exception as e:
+            logging.error(f"Error creating default admin: {e}")
 
     def _create_sample_categories(self):
         """Create sample categories"""

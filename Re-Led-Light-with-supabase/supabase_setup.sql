@@ -58,6 +58,55 @@ CREATE TABLE IF NOT EXISTS catalogues (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- Messages table
+CREATE TABLE IF NOT EXISTS messages (
+    id BIGSERIAL PRIMARY KEY,
+    sender_name VARCHAR(200) NOT NULL,
+    sender_email VARCHAR(200) NOT NULL,
+    sender_phone VARCHAR(20),
+    subject VARCHAR(300) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'unread',
+    admin_reply TEXT,
+    admin_reply_at TIMESTAMP WITH TIME ZONE,
+    replied_by VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Admin users table
+CREATE TABLE IF NOT EXISTS admin_users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Insert default admin user
+INSERT INTO admin_users (username, password) 
+VALUES ('admin', 'admin123') 
+ON CONFLICT (username) DO NOTHING;
+
+-- Order items table
+CREATE TABLE IF NOT EXISTS order_items (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+    product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL
+);
+
+-- Catalogues table
+CREATE TABLE IF NOT EXISTS catalogues (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    pdf_url VARCHAR(500) NOT NULL,
+    thumbnail_url VARCHAR(500),
+    category VARCHAR(100),
+    featured BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Admin users table
 CREATE TABLE IF NOT EXISTS admin_users (
     id BIGSERIAL PRIMARY KEY,
