@@ -63,7 +63,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h4>${{ "%.2f"|format(orders|sum(attribute='total_amount') or 0) }}</h4>
+                            <h4>₹{{ "%.2f"|format(orders|sum(attribute='total_amount') or 0) }}</h4>
                             <p class="mb-0">Total Revenue</p>
                         </div>
                         <div class="align-self-center">
@@ -135,7 +135,7 @@
                                     </td>
                                     <td>{{ product.name }}</td>
                                     <td>{{ product.categories.name if product.categories else 'N/A' }}</td>
-                                    <td>${{ "%.2f"|format(product.price) }}</td>
+                                    <td>₹{{ "%.2f"|format(product.price) }}</td>
                                     <td>{{ product.stock }}</td>
                                     <td>
                                         {% if product.featured %}
@@ -187,7 +187,7 @@
                                     <td>#{{ order.id }}</td>
                                     <td>{{ order.customer_name }}</td>
                                     <td>{{ order.customer_phone or 'N/A' }}</td>
-                                    <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                                    <td>₹{{ "%.2f"|format(order.total_amount) }}</td>
                                     <td>
                                         <select class="form-select form-select-sm" onchange="updateOrderStatus({{ order.id }}, this.value)">
                                             <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
@@ -397,7 +397,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="productPrice" class="form-label">Price ($)</label>
+                            <label for="productPrice" class="form-label">Price (₹)</label>
                             <input type="number" class="form-control" id="productPrice" step="0.01" required>
                         </div>
                         <div class="col-md-6 mb-3">

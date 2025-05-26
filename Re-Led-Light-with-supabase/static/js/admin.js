@@ -183,7 +183,7 @@ function viewOrderDetails(orderId) {
                             <p class="mb-1"><strong>Status:</strong> 
                                 <span class="badge ${getOrderStatusClass(order.status)}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                             </p>
-                            <p class="mb-0"><strong>Total Amount:</strong> $${order.total_amount}</p>
+                            <p class="mb-0"><strong>Total Amount:</strong> ₹${order.total_amount}</p>
                         </div>
                     </div>
 
@@ -197,8 +197,8 @@ function viewOrderDetails(orderId) {
                                         <small class="text-muted">Qty: ${item.quantity}</small>
                                     </div>
                                     <div class="text-end">
-                                        <strong>$${item.price}</strong><br>
-                                        <small class="text-muted">Total: $${(item.price * item.quantity).toFixed(2)}</small>
+                                        <strong>₹${item.price}</strong><br>
+                                        <small class="text-muted">Total: ₹${(item.price * item.quantity).toFixed(2)}</small>
                                     </div>
                                 </div>
                             `).join('')}
