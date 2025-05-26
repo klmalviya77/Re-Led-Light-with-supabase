@@ -34,6 +34,24 @@ class DatabaseService:
             logging.error(f"Error creating category: {e}")
             raise
 
+    def update_category(self, category_id: int, category_data: Dict) -> Dict:
+        """Update a category"""
+        try:
+            response = self.client.table('categories').update(category_data).eq('id', category_id).execute()
+            return response.data[0] if response.data else {}
+        except Exception as e:
+            logging.error(f"Error updating category {category_id}: {e}")
+            raise
+
+    def delete_category(self, category_id: int) -> bool:
+        """Delete a category"""
+        try:
+            self.client.table('categories').delete().eq('id', category_id).execute()
+            return True
+        except Exception as e:
+            logging.error(f"Error deleting category {category_id}: {e}")
+            raise
+
     # Product operations
     def get_all_products(self) -> List[Dict]:
         """Get all products with category information"""

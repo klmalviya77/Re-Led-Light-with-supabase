@@ -768,3 +768,113 @@ function sendReply() {
         showErrorMessage('Error sending reply');
     });
 }
+
+// Category Management Functions
+function editCategory(categoryId) {
+    // Find category data from the table
+    const row = document.querySelector(`button[onclick="editCategory(${categoryId})"]`).closest('tr');
+    const cells = row.querySelectorAll('td');
+
+    // Populate form
+    document.getElementById('categoryId').value = categoryId;
+    document.getElementById('categoryName').value = cells[1].textContent.trim();
+    document.getElementById('categoryDescription').value = cells[2].textContent.trim() === 'N/A' ? '' : cells[2].textContent.trim();
+
+    // Change modal title
+    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+    modal.show();
+}
+
+function saveCategory() {
+    const categoryId = document.getElementById('categoryId').value;
+    const isEdit = categoryId !== '';
+
+    const categoryData = {
+        name: document.getElementById('categoryName').value.trim(),
+        description: document.getElementById('categoryDescription').value.trim()
+    };
+
+    if (!categoryData.name) {
+        showErrorMessage('Category name is required');
+        return;
+    }
+
+    const url = isEdit ? `/api/admin/category/${categoryId}` : '/api/admin/category';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage(isEdit ? 'Category updated successfully!' : 'Category added successfully!');
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('categoryModal'));
+            modal.hide();
+
+            // Reset form
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryModalTitle').textContent = 'Add Category';
+
+            // Reload page to show changes
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showErrorMessage(data.error || 'Failed to save category');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorMessage('Network error occurred');
+    });
+}
+
+function deleteCategory(categoryId) {
+    if (!confirm('Are you sure you want to delete this category? This action cannot be undone and may affect related products.')) {
+        return;
+    }
+
+    fetch(`/api/admin/category/${categoryId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage('Category deleted successfully!');
+
+            // Remove row from table
+            const button = document.querySelector(`button[onclick="deleteCategory(${categoryId})"]`);
+            const row = button.closest('tr');
+            row.remove();
+        } else {
+            showErrorMessage(data.error || 'Failed to delete category');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrorMessage('Network error occurred');
+    });
+}
+
+// Reset category form when modal is closed
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryModal = document.getElementById('categoryModal');
+    if (categoryModal) {
+        categoryModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryModalTitle').textContent = 'Add Category';
+        });
+    }
+});

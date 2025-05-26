@@ -674,6 +674,75 @@ def view_order(order_id):
             } for item in order.items]
         })
 
+# Category Management Routes
+@app.route('/api/admin/category', methods=['POST'])
+def add_category():
+    """Add new category via AJAX"""
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'error': 'Unauthorized'})
+
+    try:
+        data = request.json
+
+        # Validate required fields
+        if not data.get('name'):
+            return jsonify({'success': False, 'error': 'Category name is required'})
+
+        # Create category in Supabase
+        category = db_service.create_category(data['name'], data.get('description', ''))
+
+        return jsonify({'success': True, 'category_id': category['id']})
+
+    except Exception as e:
+        logging.error(f"Error adding category: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/admin/category/<int:category_id>', methods=['PUT'])
+def update_category(category_id):
+    """Update category via AJAX"""
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'error': 'Unauthorized'})
+
+    try:
+        data = request.json
+
+        # Validate required fields
+        if not data.get('name'):
+            return jsonify({'success': False, 'error': 'Category name is required'})
+
+        # Update category in Supabase
+        updated_category = db_service.update_category(category_id, {
+            'name': data['name'],
+            'description': data.get('description', '')
+        })
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        logging.error(f"Error updating category: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/admin/category/<int:category_id>', methods=['DELETE'])
+def delete_category(category_id):
+    """Delete category via AJAX"""
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'error': 'Unauthorized'})
+
+    try:
+        # Check if category has products
+        products = db_service.get_products_by_category(category_id)
+        if products:
+            return jsonify({'success': False, 'error': f'Cannot delete category. It has {len(products)} associated products.'})
+
+        # Delete from Supabase
+        db_service.delete_category(category_id)
+
+        return jsonify({'success': True})
+
+    except Exception as e:
+        logging.error(f"Error deleting category: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 # Message Management Routes
 @app.route('/api/admin/messages')
 def get_admin_messages():
