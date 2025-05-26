@@ -8,8 +8,7 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Admin password - in production, use proper authentication
-ADMIN_PASSWORD = "admin123"
+# Admin authentication now handled exclusively through Supabase
 
 @app.route('/')
 def index():
@@ -281,34 +280,23 @@ def admin_login():
 
 @app.route('/admin-auth', methods=['POST'])
 def admin_auth():
-    """Enhanced admin authentication with Supabase"""
+    """Admin authentication with Supabase only"""
     username = request.form.get('username', 'admin')
     password = request.form.get('password')
 
     try:
-        # First try Supabase authentication
+        # Use only Supabase authentication
         if db_service.verify_admin_credentials(username, password):
             session['admin_logged_in'] = True
             session['admin_username'] = username
-            return redirect(url_for('admin'))
-        # Fallback to hardcoded password for compatibility
-        elif password == ADMIN_PASSWORD:
-            session['admin_logged_in'] = True
-            session['admin_username'] = 'admin'
             return redirect(url_for('admin'))
         else:
             flash('Invalid credentials', 'error')
             return redirect(url_for('admin_login'))
     except Exception as e:
         logging.error(f"Admin authentication error: {e}")
-        # Fallback authentication
-        if password == ADMIN_PASSWORD:
-            session['admin_logged_in'] = True
-            session['admin_username'] = 'admin'
-            return redirect(url_for('admin'))
-        else:
-            flash('Invalid credentials', 'error')
-            return redirect(url_for('admin_login'))
+        flash('Authentication service unavailable', 'error')
+        return redirect(url_for('admin_login'))
 
 @app.route('/admin')
 def admin():
