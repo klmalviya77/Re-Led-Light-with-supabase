@@ -611,8 +611,8 @@ function updateMessagesTable(messages) {
         row.innerHTML = `
             <td>${message.id}</td>
             <td>
-                <div>${message.sender_name}</div>
-                <small class="text-muted">${message.sender_email}</small>
+                <div>${message.sender_name || 'N/A'}</div>
+                <small class="text-muted">${message.sender_email || 'N/A'}</small>
             </td>
             <td>${message.subject}</td>
             <td>${date}</td>
@@ -683,8 +683,8 @@ function displayMessageDetails(message) {
 
     content.innerHTML = `
         <div class="mb-3">
-            <h6>From: ${message.sender_name}</h6>
-            <p class="text-muted mb-1">Email: ${message.sender_email}</p>
+            <h6>From: ${message.sender_name || 'N/A'}</h6>
+            <p class="text-muted mb-1">Email: ${message.sender_email || 'N/A'}</p>
             ${message.sender_phone ? `<p class="text-muted mb-1">Phone: ${message.sender_phone}</p>` : ''}
             <p class="text-muted mb-1">Date: ${date}</p>
             <span class="badge ${statusClass}">${message.status.charAt(0).toUpperCase() + message.status.slice(1)}</span>

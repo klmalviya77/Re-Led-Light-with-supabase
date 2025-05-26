@@ -403,8 +403,16 @@ class DatabaseService:
             response = self.client.table('messages').select('*').order('created_at', desc=True).execute()
             messages = response.data if response.data else []
 
-            # Convert string dates to datetime objects for template compatibility
+            # Convert string dates to datetime objects for template compatibility and ensure field mapping
             for message in messages:
+                # Ensure all required fields exist with fallback values
+                message['sender_name'] = message.get('sender_name', 'N/A')
+                message['sender_email'] = message.get('sender_email', 'N/A')
+                message['sender_phone'] = message.get('sender_phone', '')
+                message['subject'] = message.get('subject', 'No Subject')
+                message['message'] = message.get('message', '')
+                message['status'] = message.get('status', 'unread')
+                
                 if message.get('created_at') and isinstance(message['created_at'], str):
                     try:
                         message['created_at'] = datetime.fromisoformat(message['created_at'].replace('Z', '+00:00'))
@@ -434,7 +442,16 @@ class DatabaseService:
         """Get message by ID"""
         try:
             response = self.client.table('messages').select('*').eq('id', message_id).execute()
-            return response.data[0] if response.data else None
+            message = response.data[0] if response.data else None
+            if message:
+                # Ensure all required fields exist with fallback values
+                message['sender_name'] = message.get('sender_name', 'N/A')
+                message['sender_email'] = message.get('sender_email', 'N/A')
+                message['sender_phone'] = message.get('sender_phone', '')
+                message['subject'] = message.get('subject', 'No Subject')
+                message['message'] = message.get('message', '')
+                message['status'] = message.get('status', 'unread')
+            return message
         except Exception as e:
             logging.error(f"Error fetching message {message_id}: {e}")
             return None

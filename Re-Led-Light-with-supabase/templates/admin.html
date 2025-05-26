@@ -279,8 +279,8 @@
                         <tr>
                             <td>{{ message.id }}</td>
                             <td>
-                                <div>{{ message.sender_name }}</div>
-                                <small class="text-muted">{{ message.sender_email }}</small>
+                                <div>{{ message.sender_name or 'N/A' }}</div>
+                                <small class="text-muted">{{ message.sender_email or 'N/A' }}</small>
                             </td>
                             <td>{{ message.subject }}</td>
                             <td>
