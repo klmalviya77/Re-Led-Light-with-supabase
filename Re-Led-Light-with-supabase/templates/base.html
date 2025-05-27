@@ -3,7 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Re Led Light - Premium LED Lighting Solutions{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>{% block title %}Re Led Light - Premium LED Lighting Solutions | Energy Efficient LED Lights{% endblock %}</title>
+    <meta name="description" content="{% block description %}Discover premium LED lighting solutions at Re Led Light. Energy-efficient LED bulbs, smart lighting, decorative lights for home and office. Save up to 80% on energy costs with our quality LED products.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}LED lights, LED bulbs, energy efficient lighting, smart lighting, LED strip lights, decorative lights, home lighting, office lighting, LED solutions, Re Led Light{% endblock %}">
+    <meta name="author" content="Re Led Light">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{% block og_title %}Re Led Light - Premium LED Lighting Solutions{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Premium LED lighting solutions for home and business. Energy-efficient, long-lasting LED products with modern designs.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='images/logo.png', _external=True) }}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:site_name" content="Re Led Light">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Re Led Light - Premium LED Lighting Solutions{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Energy-efficient LED lighting solutions for modern homes and businesses. Quality, innovation, and savings in every product.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ url_for('static', filename='images/logo.png', _external=True) }}{% endblock %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{% block canonical %}{{ request.url }}{% endblock %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Re Led Light",
+        "url": "https://reled.netlify.app",
+        "logo": "{{ url_for('static', filename='images/logo.png', _external=True) }}",
+        "description": "Premium LED lighting solutions provider offering energy-efficient LED bulbs, smart lighting systems, and decorative lights for residential and commercial use.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "123 LED Street",
+            "addressLocality": "Light City",
+            "addressRegion": "LC",
+            "postalCode": "12345",
+            "addressCountry": "US"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+1-234-567-8900",
+            "contactType": "customer service",
+            "email": "info@reledlight.com"
+        },
+        "sameAs": [
+            "https://wa.me/1234567890"
+        ]
+    }
+    </script>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">

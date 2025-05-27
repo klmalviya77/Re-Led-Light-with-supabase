@@ -912,6 +912,18 @@ def about():
     """About us page"""
     return render_template('about.html', about_us_content="This is a sample about us content for the about page.")
 
+@app.route('/sitemap.xml')
+def sitemap():
+    """Sitemap for SEO"""
+    from flask import send_from_directory
+    return send_from_directory('static', 'sitemap.xml')
+
+@app.route('/robots.txt')
+def robots_txt():
+    """Robots.txt for SEO"""
+    from flask import send_from_directory
+    return send_from_directory('static', 'robots.txt')
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template('404.html'), 404

@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Shop - Re Led Light{% endblock %}
+{% block title %}Shop LED Lights Online | Premium LED Bulbs & Lighting Solutions - Re Led Light{% endblock %}
+
+{% block description %}Browse our extensive collection of LED lights online. Premium LED bulbs, smart lighting, strip lights, and decorative solutions. Energy-efficient lighting with warranty. Shop now!{% endblock %}
+
+{% block keywords %}shop LED lights, buy LED bulbs online, LED lighting store, smart LED bulbs, LED strip lights, ceiling lights, outdoor LED lights, energy saving bulbs, LED lighting solutions{% endblock %}
+
+{% block og_title %}Shop Premium LED Lights Online - Re Led Light{% endblock %}
+{% block og_description %}Discover our wide range of LED lighting products. Quality LED bulbs, smart lights, and decorative solutions for every need. Free shipping available.{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -136,11 +143,11 @@ function showAddToCartSuccess(productName) {
             ${productName} has been added to your cart.
         </div>
     `;
-    
+
     document.body.appendChild(toast);
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
-    
+
     toast.addEventListener('hidden.bs.toast', () => {
         document.body.removeChild(toast);
     });

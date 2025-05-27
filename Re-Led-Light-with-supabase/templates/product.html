@@ -1,6 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}{{ product.name }} - Re Led Light{% endblock %}
+{% block title %}{{ product.name }} | Premium LED Light - Re Led Light{% endblock %}
+
+{% block description %}{{ product.description }} Energy-efficient LED lighting solution. Price: ₹{{ "%.2f"|format(product.price) }}. In stock and ready to ship. Quality guaranteed.{% endblock %}
+
+{% block keywords %}{{ product.name }}, LED light, energy efficient lighting, LED bulb, smart lighting, home lighting, office lighting{% endblock %}
+
+{% block og_title %}{{ product.name }} - Premium LED Light{% endblock %}
+{% block og_description %}{{ product.description }} Available at ₹{{ "%.2f"|format(product.price) }}. Quality LED lighting with warranty.{% endblock %}
+{% block og_image %}{{ product.image_url }}{% endblock %}
+{% block og_type %}product{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name }}",
+    "description": "{{ product.description }}",
+    "image": "{{ product.image_url }}",
+    "brand": {
+        "@type": "Brand",
+        "name": "Re Led Light"
+    },
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ product.price }}",
+        "priceCurrency": "INR",
+        "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+        "seller": {
+            "@type": "Organization",
+            "name": "Re Led Light"
+        }
+    }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -22,22 +57,22 @@
                      style="height: 400px; object-fit: cover;">
             </div>
         </div>
-        
+
         <div class="col-md-6">
             <div class="product-details">
                 <h1 class="h2 mb-3">{{ product.name }}</h1>
-                
+
                 <div class="mb-3">
                     <span class="badge bg-secondary">{{ product.category.name }}</span>
                     {% if product.featured %}
                         <span class="badge bg-warning text-dark">Featured</span>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-4">
                     <span class="h3 text-primary">₹{{ "%.2f"|format(product.price) }}</span>
                 </div>
-                
+
                 <div class="mb-4">
                     {% if product.stock > 0 %}
                         <p class="text-success mb-2">
@@ -51,12 +86,12 @@
                         </p>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-4">
                     <h5>Description</h5>
                     <p class="text-muted">{{ product.description }}</p>
                 </div>
-                
+
                 <!-- Quantity and Add to Cart -->
                 {% if product.stock > 0 %}
                 <div class="row g-3 mb-4">
@@ -71,7 +106,7 @@
                     </div>
                 </div>
                 {% endif %}
-                
+
                 <!-- Action Buttons -->
                 <div class="d-flex gap-3 mb-4">
                     <a href="https://wa.me/1234567890?text=I'm interested in {{ product.name }}" 
@@ -145,7 +180,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     const quantityInput = document.getElementById('quantity');
-    
+
     if (addToCartBtn) {
         addToCartBtn.addEventListener('click', function() {
             const quantity = parseInt(quantityInput.value);
@@ -153,12 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const productName = "{{ product.name }}";
             const productPrice = {{ product.price }};
             const productImage = "{{ product.image_url }}";
-            
+
             // Add multiple quantities to cart
             for (let i = 0; i < quantity; i++) {
                 addToCart(productId, productName, productPrice, productImage);
             }
-            
+
             // Show success message
             showSuccessMessage(`Added ${quantity} x ${productName} to cart`);
         });
@@ -179,11 +214,11 @@ function showSuccessMessage(message) {
             ${message}
         </div>
     `;
-    
+
     document.body.appendChild(toast);
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
-    
+
     toast.addEventListener('hidden.bs.toast', () => {
         document.body.removeChild(toast);
     });

@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block title %}Re Led Light - Premium LED Lighting Solutions | Energy Efficient LED Bulbs & Smart Lights{% endblock %}
+
+{% block description %}Shop premium LED lighting solutions at Re Led Light. Energy-efficient LED bulbs, smart lighting systems, decorative lights for home and office. Save up to 80% on energy costs. Free shipping on orders over ₹500.{% endblock %}
+
+{% block keywords %}LED lights India, LED bulbs online, energy efficient lighting, smart LED lights, home LED lighting, office lighting solutions, decorative LED lights, LED strip lights, ceiling LED lights, outdoor LED lights{% endblock %}
+
+{% block og_title %}Re Led Light - India's Leading LED Lighting Store{% endblock %}
+{% block og_description %}Transform your space with premium LED lighting. Energy-efficient bulbs, smart lights, and decorative solutions. Shop now for quality LED products with warranty.{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="bg-primary text-white py-5">
@@ -136,6 +145,43 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Re Led Light",
+    "url": "https://reled.netlify.app",
+    "description": "Premium LED lighting solutions for home and business. Energy-efficient LED bulbs, smart lighting systems, and decorative lights.",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://reled.netlify.app/shop?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "Re Led Light",
+    "description": "Premium LED lighting solutions store offering energy-efficient LED bulbs, smart lighting, and decorative lights for residential and commercial use.",
+    "url": "https://reled.netlify.app",
+    "telephone": "+1-234-567-8900",
+    "email": "info@reledlight.com",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 LED Street",
+        "addressLocality": "Light City",
+        "addressRegion": "LC",
+        "postalCode": "12345",
+        "addressCountry": "US"
+    },
+    "openingHours": "Mo-Sa 09:00-18:00",
+    "paymentAccepted": "Cash, Credit Card, Debit Card, Online Payment"
+}
+</script>
+
 <script>
 // Initialize cart count on page load
 document.addEventListener('DOMContentLoaded', function() {
