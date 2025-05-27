@@ -1,6 +1,7 @@
+
 [build]
-  publish = "."
-  command = "echo 'Build complete'"
+  publish = "Re-Led-Light-with-supabase"
+  command = "cd Re-Led-Light-with-supabase && pip install -r requirements.txt"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -11,4 +12,12 @@
   status = 200
 
 [functions]
-  directory = "netlify/functions"
+  directory = "Re-Led-Light-with-supabase/netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

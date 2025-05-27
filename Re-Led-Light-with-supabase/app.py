@@ -19,6 +19,10 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Configure for Netlify deployment
+if os.environ.get('NETLIFY'):
+    app.config['SERVER_NAME'] = None
+
 # Configure the database
 database_url = os.environ.get("DATABASE_URL", "sqlite:///reled.db")
 # Fix for incorrect database URL format
